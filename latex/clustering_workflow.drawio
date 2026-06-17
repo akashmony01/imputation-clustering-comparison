@@ -1,0 +1,87 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="clustering_workflow" name="Clustering Workflow">
+    <mxGraphModel dx="1300" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="input" value="&lt;b&gt;Input: One of 8 datasets&lt;/b&gt;&lt;br&gt;1,617 rows × 37 features (imputed) or 853/403 rows (baseline)&lt;br&gt;&lt;i&gt;df_encoded_20 · df_encoded_40 · df_mice_(no_)context · df_knn_(no_)context · df_rf_(no_)context&lt;/i&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="275" y="30" width="450" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="scale" value="&lt;b&gt;Standardisation&lt;/b&gt;&lt;br&gt;StandardScaler (mean = 0, std = 1) on numerical columns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="325" y="150" width="350" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pca" value="&lt;b&gt;PCA Dimensionality Reduction&lt;/b&gt;&lt;br&gt;n_components = 10 (Agg/DBSCAN) · 20 (Spectral) · or 99% variance (K-Means)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="325" y="240" width="350" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="subsample" value="&lt;b&gt;Optional subsampling for tuning&lt;/b&gt;&lt;br&gt;If dataset &amp;gt; 1,000 rows: sample 1,000 rows for grid-search efficiency&lt;br&gt;&lt;i&gt;Final model is always fit on the full preprocessed dataset&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="275" y="330" width="450" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="kmeans" value="&lt;b&gt;K-Means&lt;/b&gt;&lt;br&gt;(Centroid-based)&lt;br&gt;&lt;i&gt;Search:&lt;/i&gt;&lt;br&gt;n_clusters 2–20&lt;br&gt;init: k-means++/random&lt;br&gt;n_init: 10/20/50&lt;br&gt;&lt;i&gt;Score:&lt;/i&gt; sil / (db + ε)&lt;br&gt;Fine-tune ±2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=center;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="470" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="agg" value="&lt;b&gt;Agglomerative&lt;/b&gt;&lt;br&gt;(Hierarchical)&lt;br&gt;&lt;i&gt;Search:&lt;/i&gt;&lt;br&gt;n_clusters 2–10&lt;br&gt;linkage: ward/complete/avg&lt;br&gt;metric: euc/man/cos&lt;br&gt;&lt;i&gt;Score:&lt;/i&gt; (sil + ch_n + db_n)/3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=center;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="470" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dbscan" value="&lt;b&gt;DBSCAN&lt;/b&gt;&lt;br&gt;(Density-based)&lt;br&gt;&lt;i&gt;Search:&lt;/i&gt;&lt;br&gt;eps 0.3–2.0 (Δ 0.1)&lt;br&gt;min_samples: 3/5/8/10/15&lt;br&gt;metric: euc/man/cos&lt;br&gt;&lt;i&gt;Score:&lt;/i&gt; (sil + ch_n + db_n)/3&lt;br&gt;Noise → label −1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=center;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="470" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="spectral" value="&lt;b&gt;Spectral&lt;/b&gt;&lt;br&gt;(Graph-based)&lt;br&gt;&lt;i&gt;Search:&lt;/i&gt;&lt;br&gt;n_clusters 2–6&lt;br&gt;affinity: nearest_neighbors&lt;br&gt;assign_labels: kmeans&lt;br&gt;&lt;i&gt;Score:&lt;/i&gt; sil + log(ch+1) − db" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="470" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fit" value="&lt;b&gt;Fit best model on full preprocessed dataset&lt;/b&gt;&lt;br&gt;Apply selected hyperparameters (after fine-tuning)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="710" width="400" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="save" value="&lt;b&gt;Save cluster labels&lt;/b&gt;&lt;br&gt;e.g., kmeans_cluster · agg_cluster · dbscan_cluster · spc_cluster" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="800" width="400" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d_done" value="&lt;b&gt;All 32 pipelines done?&lt;/b&gt;&lt;br&gt;(8 datasets × 4 algorithms)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="890" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="output" value="&lt;b&gt;Output: 32 clustering solutions&lt;/b&gt;&lt;br&gt;Ready for evaluation under composite scoring framework&lt;br&gt;&lt;i&gt;(see Phase 6 — Evaluation &amp;amp; Ranking)&lt;/i&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="275" y="1040" width="450" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ea1" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="input" target="scale"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea2" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="scale" target="pca"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea3" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="pca" target="subsample"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="ea4a" style="endArrow=classic;html=1;rounded=0;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="subsample" target="kmeans"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea4b" style="endArrow=classic;html=1;rounded=0;exitX=0.4;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="subsample" target="agg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea4c" style="endArrow=classic;html=1;rounded=0;exitX=0.6;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="subsample" target="dbscan"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea4d" style="endArrow=classic;html=1;rounded=0;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="subsample" target="spectral"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="ea5a" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="kmeans" target="fit"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea5b" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.4;entryY=0;" edge="1" parent="1" source="agg" target="fit"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea5c" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.6;entryY=0;" edge="1" parent="1" source="dbscan" target="fit"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea5d" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="spectral" target="fit"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="ea6" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="fit" target="save"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea7" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="save" target="d_done"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="ea8" value="YES" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=11;" edge="1" parent="1" source="d_done" target="output"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="ea9" value="NO — next dataset / algorithm" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;entryX=1;entryY=0.5;dashed=1;strokeColor=#cc0000;fontSize=11;fontColor=#cc0000;" edge="1" parent="1" source="d_done" target="input">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="970" y="940" />
+              <mxPoint x="970" y="70" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

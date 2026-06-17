@@ -1,0 +1,389 @@
+% Chapter 4: Implementation and Result Analysis
+\chapter{Implementation and Result Analysis}
+
+\section{Implementation Overview}
+
+The pipeline described in Chapter~3 was implemented in Python and organised into four modular stages mirroring the methodology phases: preprocessing, imputation, clustering, and evaluation. Each stage ran in Google Colab and persisted its output as a serialised dataset, so any stage could be re-run independently without recomputing upstream work. The preprocessing stage performed cleaning, conditional API-based filling of geolocation and weather, categorical harmonisation, feature engineering, and the multi-strategy encoding detailed in Section~3.3. The imputation stage produced the six imputed datasets: MICE variants retained 1{,}613 rows $\times$ 37 columns after dropping four rows whose available predictors were too sparse for stable BayesianRidge fitting; KNN variants retained the full 1{,}617 rows $\times$ 37 columns; and MissForest variants retained 1{,}617 rows $\times$ 29 columns (the tree-based estimator uses label-encoded categoricals rather than the one-hot expansion used for MICE/KNN). The full per-variant accounting is given in \S3.4.2. The clustering stage applied K-Means, Agglomerative, DBSCAN, and Spectral Clustering to each of the eight input datasets --- the six imputed variants and the two non-imputed baselines, \texttt{df\_encoded\_20} (853 rows, 22 columns) and \texttt{df\_encoded\_40} (403 rows, 30 columns). The evaluation stage computed the six internal-validation metrics, the balance penalty term, and the composite ranking score of \S\ref{sec:evaluation_metrics_combined}.
+
+Inside the clustering stage, each input dataset was processed through StandardScaler and optional PCA (99\% variance for K-Means, 10 components for Agglomerative and DBSCAN, and 20 for Spectral), with the algorithm-specific composite tuning scores defined in \eqnref{eq:tuning_score_kmeans}--\eqnref{eq:tuning_score_spectral}. Optimal cluster labels were appended to the original DataFrames as \texttt{kmeans\_cluster}, \texttt{agg\_cluster}, \texttt{dbscan\_cluster}, and \texttt{spc\_cluster}. Datasets were organised into logical groups for cross-strategy analysis (algorithm-specific: \texttt{agg\_dfs}, \texttt{dbscan\_dfs}, \texttt{kmeans\_dfs}, \texttt{spc\_dfs}; imputation-specific: \texttt{context\_dfs}, \texttt{no\_context\_dfs}, \texttt{no\_imputed\_dfs}, \texttt{mice\_dfs}, \texttt{rf\_dfs}, \texttt{knn\_dfs}), and the same grouping is reused in \S\ref{sec:group_level_analysis}. Key libraries were scikit-learn (preprocessing, clustering, internal validation), NumPy and SciPy (distance computations for the Dunn and Xie--Beni indices), pandas (dataset manipulation), and matplotlib/seaborn (visualisation).
+
+\textbf{Reproducibility.} The 12-notebook pipeline ran in Google Colab on the platform's default runtime during the 2024--2025 project period (Python 3.10/3.11, scikit-learn 1.3 or later, NumPy 1.x, pandas 2.x, SciPy 1.x). All stochastic components were initialised with a fixed seed (\texttt{random\_state=42}) applied uniformly across MissForest (100 trees), the custom per-variable BayesianRidge MICE-style imputer described in \S3.4.1, the K-Means grid search ($n\_\mathrm{clusters} \in [2, 20]$, init $\in \{\text{k-means++}, \text{random}\}$, $n\_\mathrm{init} \in \{10, 20, 50\}$, $\mathrm{max\_iter} \in \{300, 500\}$), the Spectral Clustering eigendecomposition, and the train/validation splits used in imputation diagnostics. The KNN imputer was configured with $k = 5$ and Euclidean distance. The clustering-stage PCA retained 99\% of variance for K-Means, 10 components for Agglomerative and DBSCAN, and 20 for Spectral. Intermediate datasets are persisted as Excel files after every stage (\texttt{0\_original.xlsx} through \texttt{11\_forest\_no\_context.xlsx}, plus per-algorithm clustering outputs in \texttt{datasets/\{agg, kmeans, dbscan, spc\}/}). Data availability and the public code release are described in \S\ref{sec:data_availability}.
+
+\section{Cluster Quality Comparison}
+
+\subsection{Initial Manual Evaluation}
+
+Initial inspection of the 32 outputs revealed substantial variation in quality. Some DBSCAN configurations posted high silhouette scores (e.g., 0.8744) while forming only tiny clusters --- two of 3 points each, with 1{,}611 of 1{,}617 points labelled as noise. The pattern is a known failure mode of standard geometric indices, which can reward small compact clusters while ignoring excessive noise and poor data utilisation, and similar issues appeared across algorithms (a dominant cluster with many singletons). These observations motivated the inclusion of the study-specific balance penalty inside the composite score, to discourage degenerate partitions and to keep ranking decisions aligned with interpretable, well-utilised clusters.
+
+\subsection{Composite Scoring and Ranking}
+
+The 32 clustering combinations were ranked using the composite framework of \S\ref{sec:evaluation_metrics_combined} (\eqnref{eq:composite_score}). Figure~\ref{fig:composite_scoring_and_ranking} presents a heatmap of normalised metric values (min--max scaling per metric) and composite scores, sorted by final rank --- higher values redder, lower bluer. Raw (non-normalised) metric values for all 32 cases appear in the Annex (Table~\ref{tbl:full_per_case_results_across_a}).
+
+The ranking shows clear patterns. Imputed datasets dominate the top positions: all top 10 cases are imputed (6 no-context, 4 context-aware), consistent with the expectation that principled imputation improves downstream clustering quality. Among imputed cases, no-context variants hold a small lead over context-aware ones, occupying 6 of the top 10 spots --- consistent with, though not on its own establishing, the interpretation that a larger predictor pool during imputation provides a modest, consistent benefit on this dataset. Within the imputed pipelines, MissForest configurations occupy 6 of the top 10 (with 2 each from MICE and KNN); on the metrics used in this study and for this dataset, MissForest is therefore the strongest imputation backbone of the three, framed as a dataset-specific observation rather than a general superiority claim, since imputation method rankings are well known to vary with sample size, missingness mechanism, and feature types.
+
+Algorithm diversity is also visible. Spectral Clustering (\texttt{spc}) leads with 5 cases in the top 10, followed by Agglomerative and K-Means. The single best combination is Agglomerative Clustering with MissForest no-context imputation (\texttt{agg\_rf\_no\_context}, rank 1, composite score 27.30 out of a maximum of 32). High-noise or severely imbalanced cases (notably DBSCAN with tiny clusters) consistently rank at the bottom, confirming that the balance penalty does the work it was introduced for; the worst pipeline was DBSCAN with KNN imputation under the context-aware strategy, scoring 4.20 --- close to the theoretical minimum of 1. The metric- and group-level patterns behind these results are unpacked in the group-level comparisons (\S\ref{sec:group_level_analysis}) and the Discussion (\S\ref{sec:discussion_of_findings}).
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.55\textheight,keepaspectratio]{image22.png}
+  \caption[Composite scoring and ranking heatmap]{Composite scoring and ranking heatmap. Rows sorted by final rank; columns: balance, silhouette, Calinski--Harabasz, Dunn, Davies--Bouldin (inverted), Xie--Beni (inverted), composite score. Green = higher values, red = lower values.}
+  \label{fig:composite_scoring_and_ranking}
+\end{figure}
+
+\subsection{Visual Comparison of Combined Scores}
+
+Across all 32 combinations, imputed pipelines consistently outperformed the non-imputed baselines, underscoring the improvement in clustering quality achieved through imputation. Figure~\ref{fig:horizontal_bar_graph_of_compos} visualises the ranking as a horizontal bar graph of composite scores, sorted from highest to lowest. Within the top 16, the upper-ranked solutions exhibit clear, well-separated clusters with minimal overlap, while the lower-ranked solutions display increasingly messy, heavily overlapping clusters, often with fragmentation or poor separation. Figure~\ref{fig:grid_of_pca_reduced_scatter_pl} shows PCA-reduced scatter plots for the top 16 cases as a $4 \times 4$ grid sorted by descending composite rank (top-left = best), with each subplot's points coloured by assigned cluster label; full scatter plots for all 32 cases appear in the Annex (Figure~\ref{fig:supplementary_figure_s2_full_p}).
+
+Top-performing cases predominantly form 2 balanced clusters, reflecting interpretable, well-distributed partitioning, whereas lower-ranked cases in the top 16 tend to produce either too few clusters (excessive noise) or too many (over-segmentation), both of which correlate with reduced composite scores. Figure~\ref{fig:horizontal_bar_graph_showing_t} reports unique-cluster counts (excluding DBSCAN noise labels of $-1$) as a bar graph for the top 16 cases; full counts for all 32 cases are in the Annex (Figure~\ref{fig:supplementary_figure_s3_full_b}). The composite scoring formulation thus favours configurations with balanced, well-utilised clusters and demotes those exhibiting geometric artefacts or near-degenerate distributions, consistent with its design intent.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{image7.png}
+  \caption[Composite scores for all 32 clustering combinations]{Horizontal bar graph of composite scores for all 32 clustering combinations, sorted by final rank (highest to lowest).}
+  \label{fig:horizontal_bar_graph_of_compos}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{image14_a.png}
+  \caption[PCA scatter grid for top 16 ranked cases]{Grid of PCA-reduced scatter plots (4 rows $\times$ 4 columns) for the top 16 ranked cases, sorted by descending composite rank (top-left = best). Points are coloured by cluster labels.}
+  \label{fig:grid_of_pca_reduced_scatter_pl}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{image8_a.png}
+  \caption[Cluster count distribution for top 16 cases]{Horizontal bar graph showing the number of unique clusters (excluding noise in DBSCAN) for the top 16 ranked cases.}
+  \label{fig:horizontal_bar_graph_showing_t}
+\end{figure}
+
+\section{Optimal Parameters and Performance Summary}
+
+Table~\ref{tbl:optimal_parameters_and_perform} summarises the optimal hyperparameters selected via grid search and fine-tuning for each of the 32 cases, with key performance metrics and ranking. Across nearly all datasets, the best solutions favoured two clusters ($n\_\mathrm{clusters} = 2$) for K-Means, Agglomerative, and Spectral, suggesting an inherent binary structure regardless of imputation or context choice. Spectral showed complete parameter stability, always selecting affinity $=$ \texttt{nearest\_neighbors} with \texttt{assign\_labels} $=$ \texttt{kmeans}, while K-Means relied on low $n\_\mathrm{clusters}$ and moderate $n\_\mathrm{init}$ except for the encoded-only datasets, where higher cluster counts were needed. Context-aware imputation did not substantially change optimal hyperparameters, suggesting it mainly improved data quality rather than cluster structure; DBSCAN, in contrast, was highly sensitive to data representation, with cosine distance dominating for encoded and RF/MICE datasets and larger $\varepsilon$ values required for KNN-imputed data.
+
+\begin{table}[!ht]
+\centering
+\caption[Optimal parameters and performance for 32 cases]{Optimal parameters and performance for the 32 cases}
+\label{tbl:optimal_parameters_and_perform}
+\renewcommand{\arraystretch}{1.0}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|l|l|c|c|}
+\hline
+\textbf{Rank} & \textbf{Abbreviation} & \textbf{Optimal Parameters} & \textbf{Silhouette} & \textbf{Composite} \\ \hline
+1 & agg\_rf\_no\_context & n\_clusters=2, linkage=complete, metric=cosine & 0.756380 & 27.30 \\ \hline
+2 & kmeans\_mice\_no\_context & n\_clusters=2, init=k-means++, n\_init=10, max\_iter=300 & 0.792085 & 26.60 \\ \hline
+3 & agg\_rf\_context & n\_clusters=2, linkage=average, metric=cosine & 0.754761 & 26.35 \\ \hline
+4 & spc\_rf\_no\_context & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.756380 & 25.60 \\ \hline
+5 & spc\_mice\_no\_context & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.787801 & 25.20 \\ \hline
+6 & dbscan\_rf\_context & eps=0.3, min\_samples=3, metric=cosine & 0.754761 & 25.15 \\ \hline
+7 & spc\_rf\_context & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.754761 & 24.45 \\ \hline
+8 & spc\_knn\_no\_context & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.795369 & 24.10 \\ \hline
+9 & spc\_knn\_context & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.794904 & 24.00 \\ \hline
+10 & kmeans\_rf\_no\_context & n\_clusters=2, init=k-means++, n\_init=10, max\_iter=300 & 0.755367 & 23.30 \\ \hline
+11 & spc\_encoded\_40 & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.903649 & 22.80 \\ \hline
+12 & kmeans\_rf\_context & n\_clusters=2, init=k-means++, n\_init=10, max\_iter=300 & 0.753743 & 22.10 \\ \hline
+13 & kmeans\_knn\_no\_context & n\_clusters=2, init=k-means++, n\_init=10, max\_iter=300 & 0.785370 & 22.05 \\ \hline
+14 & kmeans\_knn\_context & n\_clusters=2, init=k-means++, n\_init=10, max\_iter=300 & 0.784890 & 21.75 \\ \hline
+15 & spc\_mice\_context & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.670781 & 20.30 \\ \hline
+16 & dbscan\_mice\_context & eps=0.3, min\_samples=3, metric=cosine & 0.874364 & 18.45 \\ \hline
+17 & kmeans\_mice\_context & n\_clusters=2, init=random, n\_init=20, max\_iter=300 & 0.708758 & 18.25 \\ \hline
+18 & dbscan\_rf\_no\_context & eps=0.3, min\_samples=15, metric=cosine & 0.351424 & 11.90 \\ \hline
+19 & spc\_encoded\_20 & n\_clusters=2, affinity=nearest\_neighbors, assign\_labels=kmeans & 0.012104 & 11.00 \\ \hline
+20 & dbscan\_encoded\_20 & eps=0.5, min\_samples=3, metric=cosine & 0.121859 & 10.85 \\ \hline
+21 & agg\_encoded\_40 & n\_clusters=2, linkage=complete, metric=manhattan & 0.157153 & 10.35 \\ \hline
+22 & dbscan\_encoded\_40 & eps=0.3, min\_samples=10, metric=cosine & -0.339146 & 10.20 \\ \hline
+23 & agg\_mice\_no\_context & n\_clusters=2, linkage=complete, metric=euclidean & -0.077905 & 9.65 \\ \hline
+24 & agg\_knn\_context & n\_clusters=2, linkage=complete, metric=manhattan & -0.285265 & 9.45 \\ \hline
+25 & agg\_knn\_no\_context & n\_clusters=2, linkage=complete, metric=manhattan & -0.019878 & 9.35 \\ \hline
+26 & kmeans\_encoded\_40 & n\_clusters=8, init=k-means++, n\_init=50, max\_iter=300 & -0.071859 & 9.15 \\ \hline
+27 & dbscan\_mice\_no\_context & eps=0.3, min\_samples=3, metric=cosine & -0.077905 & 8.65 \\ \hline
+28 & agg\_mice\_context & n\_clusters=2, linkage=complete, metric=manhattan & -0.094494 & 8.15 \\ \hline
+29 & kmeans\_encoded\_20 & n\_clusters=10, init=k-means++, n\_init=50, max\_iter=300 & -0.212661 & 7.20 \\ \hline
+30 & agg\_encoded\_20 & n\_clusters=6, linkage=average, metric=euclidean & -0.316824 & 5.65 \\ \hline
+31 & dbscan\_knn\_no\_context & eps=1.9, min\_samples=3, metric=euclidean & -0.436810 & 4.50 \\ \hline
+32 & dbscan\_knn\_context & eps=1.9, min\_samples=3, metric=euclidean & -0.405025 & 4.20 \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\section{Group-Level Analysis}\label{sec:group_level_analysis}
+
+Beyond the headline composite ranking, it is informative to examine how the 32 cases behave when results are aggregated by imputation strategy, predictor context, and clustering algorithm --- first metric by metric across the full set of cases, then by averaging within predefined groups to expose systematic effects.
+
+\subsection{Metric-Specific Performance}
+
+All metrics were normalised using min--max scaling across the full set of cases for comparability.
+
+\subsubsection{Balance}
+
+The balance metric (Figure~\ref{fig:normalized_balance_scores_acro}) draws a clear separation between imputed and non-imputed cases. Most imputed pipelines --- particularly those using MissForest and MICE --- achieve consistently high balance scores, while DBSCAN-based pipelines and encoded-only baselines score poorly. Because balance is heavily penalised for size disparity, low values in this metric significantly depress DBSCAN composite scores even where other metrics perform moderately well; strong balance is effectively a necessary condition for a high composite rank.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image1_a.png}
+  \caption[Normalised Balance scores across all 32 pipelines]{Normalised Balance scores across all 32 clustering pipelines. Higher bars indicate more even cluster-size distribution; DBSCAN and encoded baselines cluster near the bottom.}
+  \label{fig:normalized_balance_scores_acro}
+\end{figure}
+
+\subsubsection{Silhouette Score}
+
+Silhouette (Figure~\ref{fig:normalized_silhouette_scores_a}) discriminates strongly among pipelines and plays a major role in ranking separation. Spectral and K-Means with imputation --- especially no-context variants --- dominate the upper range, indicating compact, well-separated clusters. Encoded baselines and DBSCAN pipelines frequently produce near-zero or negative silhouette values, signalling overlapping or poorly defined clusters; silhouette therefore strongly reinforces the dominance of imputed pipelines in the composite ranking.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image1_b.png}
+  \caption[Normalised Silhouette scores across all 32 pipelines]{Normalised Silhouette scores across all 32 clustering pipelines. Higher values indicate more cohesive and better-separated clusters; Spectral and K-Means with imputation dominate the upper range, while encoded baselines and DBSCAN cluster near zero or below.}
+  \label{fig:normalized_silhouette_scores_a}
+\end{figure}
+
+\subsubsection{Calinski--Harabasz Index}
+
+Calinski--Harabasz (Figure~\ref{fig:normalized_calinski_harabasz_i}) sharply distinguishes high-quality global cluster structure from weak or degenerate solutions. Imputed K-Means, Spectral, and Agglomerative pipelines achieve values several orders of magnitude higher than encoded and DBSCAN-based cases; the metric particularly favours centroid-based and hierarchical methods on well-imputed feature spaces. Extremely low Calinski--Harabasz values among DBSCAN and encoded cases contribute heavily to their low composite scores, making this a major driver of top--bottom separation.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image1_c.png}
+  \caption[Normalised Calinski--Harabasz index across all 32 pipelines]{Normalised Calinski--Harabasz index across all 32 clustering pipelines (variance-ratio criterion; higher is better). Imputed K-Means, Spectral, and Agglomerative cases sit several orders of magnitude above DBSCAN and encoded baselines.}
+  \label{fig:normalized_calinski_harabasz_i}
+\end{figure}
+
+\subsubsection{Dunn Index}
+
+The Dunn index (Figure~\ref{fig:normalized_dunn_index_across_a}) is highly skewed: only a small subset of cases achieves meaningful values. Agglomerative and Spectral pipelines with MissForest imputation stand out, producing exceptionally high Dunn scores that indicate strong minimum inter-cluster separation relative to cluster diameter; most other pipelines --- including K-Means and all encoded baselines --- yield values near zero. Because Dunn is sensitive to minimum-distance relationships, it rewards structurally clean cluster solutions and disproportionately boosts the top-ranked imputed cases.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image1_d.png}
+  \caption[Normalised Dunn index across all 32 pipelines]{Normalised Dunn index across all 32 clustering pipelines (ratio of minimum inter-cluster distance to maximum intra-cluster diameter; higher is better). Only a few imputed Agglomerative and Spectral pipelines stand out clearly above the near-zero floor.}
+  \label{fig:normalized_dunn_index_across_a}
+\end{figure}
+
+\subsubsection{Davies--Bouldin Index}
+
+Davies--Bouldin (Figure~\ref{fig:normalized_davies_bouldin_inde}; inverted for comparability) shows patterns broadly consistent with silhouette and Dunn. Imputed Spectral and K-Means pipelines achieve favourable scores, indicating low average cluster similarity, while encoded and DBSCAN-based pipelines perform poorly. The index does not fully reorder the rankings on its own but reinforces penalties for noisy or overlapping cluster structures and contributes to the demotion of DBSCAN and baseline cases.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image1_e.png}
+  \caption[Normalised Davies--Bouldin index across all 32 pipelines]{Normalised Davies--Bouldin index across all 32 clustering pipelines (inverted so that higher bars indicate better separation between clusters). Patterns broadly mirror the silhouette and Dunn distributions.}
+  \label{fig:normalized_davies_bouldin_inde}
+\end{figure}
+
+\subsubsection{Xie--Beni Index}
+
+Xie--Beni (Figure~\ref{fig:normalized_xie_beni_index_acro}) strongly favours imputed pipelines, particularly those using MissForest and MICE, across both context settings. High-performing cases show low intra-cluster variance relative to inter-cluster separation, while encoded and DBSCAN configurations score near zero after normalisation. The metric is especially effective at identifying degenerate clustering outcomes such as tiny or highly scattered clusters and closely tracks the final composite ranking.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image1_f.png}
+  \caption[Normalised Xie--Beni index across all 32 pipelines]{Normalised Xie--Beni index across all 32 clustering pipelines (inverted; higher is better). The distribution closely tracks the final composite ranking, with imputed MissForest and MICE pipelines at the top.}
+  \label{fig:normalized_xie_beni_index_acro}
+\end{figure}
+
+\subsection{Group Average Comparisons}
+
+To complement the case-level analysis, group-level averages were computed by aggregating metrics across predefined groups, exposing systematic effects of imputation strategy, predictor context, and clustering algorithm.
+
+\subsubsection{Comparison of Imputation Strategies}
+
+MissForest substantially outperforms all other strategies (Figure~\ref{fig:average_metric_comparison_acro}), achieving the highest average balance (0.64), silhouette (0.70), Calinski--Harabasz (8481), Dunn (0.66), Xie--Beni (0.93), and composite score (23.27). MICE shows moderate gains over non-imputed baselines, particularly in balance and Dunn, but is clearly inferior to MissForest. KNN performs inconsistently, with low Dunn (0.02) and weaker silhouette values, reflecting sensitivity to local noise. Non-imputed datasets rank worst across all metrics, confirming that imputation is essential for stable clustering in this setting.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image12.png}
+  \caption[Average metric comparison across imputation strategies]{Average metric comparison across the four imputation strategies (MissForest, MICE, KNN, and non-imputed baseline). Each grouped bar reports the mean of one normalised metric across all pipelines using that strategy; MissForest leads on every metric and on the composite score.}
+  \label{fig:average_metric_comparison_acro}
+\end{figure}
+
+\subsubsection{Context-Aware vs.\ No-Context Imputation}
+
+Context-aware imputation (Figure~\ref{fig:average_metric_comparison_betw}) yields higher averages for silhouette (0.51 vs.\ 0.43), Dunn (0.45 vs.\ 0.20), and Xie--Beni (0.76 vs.\ 0.67), suggesting improved cluster separation and compactness when irrelevant predictors are excluded. No-context imputation achieves a slightly higher Calinski--Harabasz score (6137 vs.\ 5869), indicating that additional features may inflate variance-based separation even if they introduce noise; balance scores are comparable across both groups. Overall, context-aware imputation attains a marginally higher average composite score (18.55 vs.\ 18.18) --- a small but consistent advantage.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{image19.png}
+  \caption[Average metric comparison: context-aware vs.\ no-context imputation]{Average metric comparison between context-aware and no-context imputation strategies. Each grouped bar reports the mean of one normalised metric over all pipelines in the corresponding strategy group; context-aware imputation leads on silhouette, Dunn, and Xie--Beni.}
+  \label{fig:average_metric_comparison_betw}
+\end{figure}
+
+\subsubsection{Comparison of Clustering Algorithms}
+
+Spectral achieves the highest average performance across most metrics (Figure~\ref{fig:average_metric_comparison_algo}), including silhouette (0.68), Calinski--Harabasz (8084), balance (0.60), and Xie--Beni (0.85), leading to the highest average composite score (22.18). K-Means is competitive, particularly in balance (0.55) and Calinski--Harabasz (7346), but suffers from extremely low Dunn values (0.03), indicating weak minimum inter-cluster separation. Agglomerative shows moderate balance and Dunn performance but lower silhouette overall, and DBSCAN exhibits the weakest average performance --- low balance and silhouette despite a relatively higher Dunn index, reflecting its sensitivity to parameter settings and difficulty with varying densities.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image10.png}
+  \caption[Average metric comparison across clustering algorithms]{Average metric comparison across the four clustering algorithms (K-Means, Agglomerative, DBSCAN, Spectral). Each grouped bar reports the mean of one normalised metric over all pipelines using that algorithm; Spectral leads on most metrics and on the overall composite score.}
+  \label{fig:average_metric_comparison_algo}
+\end{figure}
+
+\section{Key Takeaways}
+
+The comparative evaluation across imputation strategies, context settings, clustering algorithms, and metrics yields four headline observations.
+
+\begin{itemize}
+  \item \textbf{Imputation matters.} Imputed pipelines substantially outperform non-imputed baselines (avg.\ 10.90). MissForest is strongest (avg.\ 23.27), followed by MICE (16.91) and KNN (14.92), confirming tree-based imputation as more stable on this data type.
+  \item \textbf{Context-awareness adds little.} Context-aware pipelines slightly edge no-context (18.55 vs.\ 18.18); several top pipelines are non-context-aware, indicating that with strong imputation the full feature set remains advantageous.
+  \item \textbf{Algorithm averages.} Spectral (22.18) and K-Means (18.80) outperform Agglomerative (13.28) and DBSCAN (11.74) on average. Agglomerative produces the single best pipeline but is more preprocessing-sensitive; DBSCAN is weakest, consistent with its instability under imbalance and noise.
+  \item \textbf{Balance and Silhouette dominate the ranking.} They effectively penalise imbalanced or poorly separated clusters, which is why pipelines with strong individual Dunn or Davies--Bouldin scores can still rank poorly overall.
+\end{itemize}
+
+\textbf{A note on score margins.} The top four pipelines (\texttt{agg\_rf\_no\_context} $=$ 27.30, \texttt{kmeans\_mice\_no\_context} $=$ 26.60, \texttt{agg\_rf\_context} $=$ 26.35, \texttt{spc\_rf\_no\_context} $=$ 25.60) span a composite range of roughly 1.7 points on a 1--32 scale. With $n \approx 1{,}600$ records and a single hold-out run per pipeline, we did not compute bootstrap confidence intervals or permutation tests on the composite differences, and we therefore do not claim that these top-ranked pipelines are statistically distinguishable from one another. The ranking should be read as a robust separation between clearly strong and clearly degenerate pipelines --- the top quartile is well separated from the bottom quartile, which contains DBSCAN-noise solutions scoring 4--12 --- rather than as a strict ordering within the top group. The detailed profile in \S4.6 uses \texttt{agg\_rf\_no\_context} as a representative best pipeline for that reason: it sits at the top of a near-tied cluster of strong solutions, not as a uniquely optimal choice. Resampling-based uncertainty quantification on the composite score is recommended for any subsequent replication (see \S6.5).
+
+Table~\ref{tbl:best_pipeline_per_group} summarises the best pipeline per comparison group.
+
+\begin{table}[H]
+\centering
+\caption[Best pipeline per comparison group]{Best-performing pipeline for each comparison group.}
+\label{tbl:best_pipeline_per_group}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.869\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.979\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.243\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.909\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Group Type} & \textbf{Group Name} & \textbf{Best Pipeline} & \textbf{Composite Score} \\ \hline
+Algorithm & Agglomerative & agg\_\hspace{0pt}rf\_\hspace{0pt}no\_\hspace{0pt}context & 27.30 \\ \hline
+Algorithm & K-Means & kmeans\_\hspace{0pt}mice\_\hspace{0pt}no\_\hspace{0pt}context & 26.60 \\ \hline
+Algorithm & DBSCAN & dbscan\_\hspace{0pt}rf\_\hspace{0pt}context & 25.15 \\ \hline
+Algorithm & Spectral & spc\_\hspace{0pt}rf\_\hspace{0pt}no\_\hspace{0pt}context & 25.60 \\ \hline
+Imputation & MissForest (RF) & agg\_\hspace{0pt}rf\_\hspace{0pt}no\_\hspace{0pt}context & 27.30 \\ \hline
+Imputation & MICE & kmeans\_\hspace{0pt}mice\_\hspace{0pt}no\_\hspace{0pt}context & 26.60 \\ \hline
+Imputation & KNN & spc\_\hspace{0pt}knn\_\hspace{0pt}no\_\hspace{0pt}context & 24.10 \\ \hline
+Imputation & No Imputation & spc\_\hspace{0pt}encoded\_\hspace{0pt}40 & 22.80 \\ \hline
+Context & Context-aware & agg\_\hspace{0pt}rf\_\hspace{0pt}context & 26.35 \\ \hline
+Context & No-context & agg\_\hspace{0pt}rf\_\hspace{0pt}no\_\hspace{0pt}context & 27.30 \\ \hline
+\end{tabularx}
+\end{table}
+
+\section{Detailed Profiling of the Top-Ranked Cluster}
+
+The best-performing pipeline, \texttt{agg\_rf\_no\_context} (Agglomerative Clustering with MissForest no-context imputation), was selected for deeper inspection. It produced two clusters --- Cluster~0 with 759 records and Cluster~1 with 858 records --- with no overlap and no noise points, partitioning all 1{,}617 records (Figures~\ref{fig:grid_of_pca_reduced_scatter_pl} and~\ref{fig:horizontal_bar_graph_showing_t}). The composite score of 27.30, supported by a balance of 0.685 and silhouette of 0.756, indicates both strong separation and well-balanced cluster sizes. Label-encoded categorical features were decoded using the JSON mappings saved during preprocessing, restoring original semantic values for the cluster-level comparisons that follow.
+
+\subsection{Numerical Feature Profiling}
+
+Table~\ref{tbl:present_summary_statistics_mea} reports summary statistics (mean, median) for all numerical features across the two clusters. Figures~\ref{fig:comparing_age_for_two_clusters} and~\ref{fig:comparing_feels_like_for_two_c} present distribution plots for selected variables with the strongest separation and domain relevance.
+
+\begin{table}[H]
+\centering
+\caption[Summary statistics for numerical features by cluster]{Summary statistics (mean, median) for all numerical features across the two clusters. Temperature columns appear in Kelvin for Cluster~0 and Celsius for Cluster~1; see the surrounding discussion for the source-cohort caveat.}
+\label{tbl:present_summary_statistics_mea}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=1.189\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.906\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.905\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Feature} & \textbf{Cluster 0 (n=759)} & \textbf{Cluster 1 (n=858)} \\ \hline
+Age (mean / median) & 28.00 / 24.00 & 25.80 / 23.00 \\ \hline
+Feels like (mean / median) & 299.89 / 300.65 & 290.46 / 290.44 \\ \hline
+Temp min (mean / median) & 298.95 / 299.51 & 23.78 / 25.61 \\ \hline
+Temp max (mean / median) & 298.95 / 299.51 & 31.80 / 32.54 \\ \hline
+Air pressure (mean / median) & 1004.77 / 1004.00 & 1007.01 / 1005.90 \\ \hline
+Humidity (mean / median) & 85.19 / 87.00 & 71.71 / 70.11 \\ \hline
+Wind speed (mean / median) & 3.52 / 3.00 & 7.27 / 7.20 \\ \hline
+Wind direction (mean / median) & 149.05 / 145.00 & 193.32 / 194.53 \\ \hline
+Cloud cover (mean / median) & 64.05 / 75.00 & 60.68 / 67.70 \\ \hline
+Latitude (mean / median) & 23.89 / 23.92 & 23.67 / 23.76 \\ \hline
+Longitude (mean / median) & 90.11 / 90.01 & 90.26 / 90.36 \\ \hline
+Day (mean / median) & 16.78 / 16.00 & 14.72 / 15.00 \\ \hline
+Month (mean / median) & 7.22 / 7.00 & 5.69 / 6.00 \\ \hline
+Year (mean / median) & 2020 / 2020 & 2021.96 / 2022 \\ \hline
+Week (mean / median) & 30.12 / 30.00 & 22.76 / 23.00 \\ \hline
+\end{tabularx}
+\end{table}
+
+Age distributions show a modest demographic contrast between the two clusters, with one consistently exhibiting slightly higher average values (Figure~\ref{fig:comparing_age_for_two_clusters}). The temperature-related variable \texttt{feels\_like} shows the largest apparent separation (Figure~\ref{fig:comparing_feels_like_for_two_c}); however, the magnitude of this contrast is largely an artefact of unit inconsistency between the two source cohorts (Kelvin for the Cluster~0 records, which come from the 2020 Kaggle subset, and Celsius for the Cluster~1 records, which come from the manually collected 2017--2025 cases) and should not be read as a substantive environmental finding. The identical \texttt{temp\_min} and \texttt{temp\_max} values in Cluster~0 are a source-data artefact of the Kaggle subset rather than a computation error. Secondary environmental features (air humidity, wind speed) show consistent but less pronounced separation, again co-varying with the cohort split and subject to the source-confound caveat developed in \S\ref{sec:source_cohort_caveat}. With those caveats in place, the patterns are best read as cohort-aligned feature contrasts that warrant further investigation against more homogeneously sourced data.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image11.png}
+  \caption[Comparing age for two clusters]{Comparing age for two clusters}
+  \label{fig:comparing_age_for_two_clusters}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image17.png}
+  \caption[Comparing feels\_like for two clusters]{Comparing feels\_like for two clusters}
+  \label{fig:comparing_feels_like_for_two_c}
+\end{figure}
+
+Complete numerical feature comparisons for all variables appear in Figure~\ref{fig:appendix_numerical_all}.
+
+\subsection{Categorical Feature Profiling}
+
+Categorical feature distributions were analysed to uncover social and contextual differences between clusters. Table~\ref{tbl:categorical_modes_two_clusters} reports the most frequent categories, while Figures~\ref{fig:comparing_reason_for_two_clust} and~\ref{fig:comparing_workplace_for_two_cl} focus on the most discriminative variables.
+
+\begin{table}[H]
+\centering
+\caption[Categorical mode and frequency by cluster]{Most frequent category (mode and percentage) for each categorical feature across the two clusters. The near-deterministic value for Cluster~1's \texttt{weather\_main} (Partly cloudy, 99.9\%) reflects the dominant imputed value for the manually collected 2017--2025 records under MissForest rather than a homogeneous physical weather pattern.}
+\label{tbl:categorical_modes_two_clusters}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.950\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.022\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.028\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Feature} & \textbf{Cluster 0 (Mode, \%)} & \textbf{Cluster 1 (Mode, \%)} \\ \hline
+Age group & Teen (48.5\%) & Teen (39.2\%) \\ \hline
+Gender & Female (54.8\%) & Male (50.8\%) \\ \hline
+Marital status & Married (48.4\%) & Married (47.6\%) \\ \hline
+Profession group & Student (37.0\%) & Student (39.7\%) \\ \hline
+Workplace & Semi-urban (54.5\%) & Rural (50.0\%) \\ \hline
+Religion & Muslim (87.5\%) & Muslim (85.4\%) \\ \hline
+Financial condition & Lower (54.3\%) & Lower (57.6\%) \\ \hline
+Hometown & Bogura (4.0\%) & Dhaka (9.1\%) \\ \hline
+Primary reason & Family issue (23.1\%) & Mental (26.5\%) \\ \hline
+Method & Hanging (73.3\%) & Hanging (74.1\%) \\ \hline
+Weather (main) & Clouds (38.1\%) & Partly cloudy (99.9\%) \\ \hline
+Weather description & Haze (19.6\%) & Haze (64.7\%) \\ \hline
+Weekday & Saturday (17.9\%) & Sunday (16.9\%) \\ \hline
+Time of day & Night (36.9\%) & Night (35.5\%) \\ \hline
+\end{tabularx}
+\end{table}
+
+Workplace type varies meaningfully between the two clusters, indicating differences in social and environmental context (Figure~\ref{fig:comparing_workplace_for_two_cl}), and reported reasons for suicide show distinct dominant categories across the partition (Figure~\ref{fig:comparing_reason_for_two_clust}). Further contrasts appear in weather-related features such as \texttt{weather\_main} (e.g., clear, clouds, rain) and \texttt{weather\_description} (e.g., broken clouds, clear sky, haze), indicating additional environmental variation. Full categorical distributions across clusters appear in Figure~\ref{fig:appendix_categorical_all}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image15.png}
+  \caption[Comparing reason for two clusters]{Comparing reason for two clusters}
+  \label{fig:comparing_reason_for_two_clust}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image24.png}
+  \caption[Comparing workplace for two clusters]{Comparing workplace for two clusters}
+  \label{fig:comparing_workplace_for_two_cl}
+\end{figure}
+
+\subsection{Geographic Profiling}
+
+The geographic distribution of the two clusters is visualised in Figure~\ref{fig:comparing_spatial_density_for} as a latitude--longitude heatmap over Bangladesh, with distinct colours per cluster to emphasise spatial coherence and contrast. The clusters are not spatially arbitrary: Cluster~1 hometowns concentrate at the two largest cities --- Dhaka (9.1\%) and Chattogram (7.7\%) jointly account for nearly one in six cases --- while Cluster~0 hometowns are dispersed more evenly across mid-sized provincial centres (Bogura, Rajshahi, Mymensingh, each $\sim$3--4\%). The two clusters are nonetheless internally heterogeneous on workplace type: the Cluster~1 modal workplace is rural (50.0\%) with a substantial urban tail (26.6\%), while Cluster~0 is dominated by semi-urban workplaces (54.5\%). The pattern is therefore one of \emph{where the cases come from} more than \emph{where they occur}, and reinforces the numerical and categorical findings without flattening the within-cluster variation.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image18.png}
+  \caption[Comparing spatial density for two clusters]{Comparing spatial density for two clusters}
+  \label{fig:comparing_spatial_density_for}
+\end{figure}
+
+\subsection{Temporal Pattern and Source-Cohort Confound}\label{sec:source_cohort_caveat}
+
+A striking temporal pattern emerged during manual inspection. Cluster~0 contains exclusively records from 2020, whereas Cluster~1 is concentrated in 2017--2019 and 2021--2025 with only a small residue of 2020 cases (Figure~\ref{fig:comparing_years_for_two_cluste}). This separation aligns almost precisely with the dataset construction process: the original Kaggle dataset comprised 760 records all from 2020, and 857 manually collected cases spanning years before and after 2020 were added later with systematically higher missingness across several columns; the partition assigns 759 records to Cluster~0 and 858 to Cluster~1, a single-record cross-over consistent with feature-driven near-perfect cohort separation.
+
+Temporal information was not used as a clustering input --- no year, date, or source field was provided to the algorithm --- so the two-cluster boundary coinciding with the cohort boundary is an emergent property of the feature distributions. As an internal consistency check the result is positive: it shows that the imputation pipeline did not erase cohort-level structure, and that the algorithm is capable of recovering coherent partitions from severely incomplete inputs. As a substantive finding about Bangladeshi suicide patterns, however, it carries a clear caveat: the two cohorts differ systematically in completeness, reporting era, the journalistic and geographic profile of the underlying coverage, and (for temperature-derived variables) raw measurement units. These source-level differences propagate into virtually every downstream feature the clustering operates on. The recovered partition should therefore be characterised as a source-cohort split that co-varies with --- rather than cleanly isolates --- demographic, environmental, and behavioural variation in the underlying population, and any feature-level contrast in this section should be read as exploratory subgroup structure partially confounded with collection source, rather than as the discovery of two intrinsically distinct epidemiological subpopulations. The confound, and the related temperature-unit caveat, are addressed explicitly in \S6.4 (Limitations~\ref{lim:source_cohort} and~\ref{lim:temp_units}).
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{image20.png}
+  \caption[Comparing years for two clusters]{Comparing years for two clusters}
+  \label{fig:comparing_years_for_two_cluste}
+\end{figure}
+
+\section{Discussion of Findings}\label{sec:discussion_of_findings}
+
+The framework's effectiveness is supported internally by the results. The balance penalty played the role for which it was introduced, consistently demoting noisy or severely imbalanced solutions --- particularly DBSCAN-based pipelines that achieved superficially high geometric scores while assigning the vast majority of points to noise. Without it, the ranking would have been dominated by near-degenerate partitions of little interpretive value. Imputation strategy had a substantial impact: MissForest consistently produced the strongest results on this dataset, both at peak and on average, while non-imputed pipelines performed markedly worse. No-context configurations slightly outperformed context-aware ones on average, consistent with the interpretation that a richer predictor space during imputation provides a modest benefit on this particular feature set; this is a dataset-specific observation rather than a general claim.
+
+The top-ranked pipeline produced clusters whose feature-level differences span demographics, environment, social context, geography, and time. As discussed in detail in \S\ref{sec:source_cohort_caveat}, however, the recovered partition coincides with the dataset's two-cohort construction history, so the temporal separation that emerged without explicit supervision is best read as evidence that the pipeline preserves cohort-level structure under high missingness rather than as evidence that the resulting groups represent distinct intrinsic suicide profiles. Its substantive interpretation is exploratory and partially confounded with collection source. Additional limitations include sensitivity to hyperparameter choices, the substantial computational cost of MissForest, the absence of external ground-truth labels, and the temperature-unit inconsistency between cohorts noted in \S6.4 (Limitation~\ref{lim:temp_units}); these jointly motivate future work on more homogeneously sourced and unit-harmonised data before any cluster-level finding is taken as actionable evidence for prevention practice.
+
+\section{Summary}
+
+The 32-pipeline framework placed \texttt{agg\_rf\_no\_context} (Agglomerative + MissForest no-context) at the top with a composite score of 27.30, followed by MICE and MissForest variants under K-Means and Spectral clustering. Imputation was the dominant performance driver, MissForest the strongest imputer, and DBSCAN the least robust algorithm under the balance-aware composite, while no single metric reordered the ranking on its own: balance and silhouette jointly governed top--bottom separation, with Calinski--Harabasz amplifying it. The detailed profile of the best pipeline yielded a clean two-cluster solution (759 vs.\ 858 records) whose feature-level contrasts span age, environment, workplace, geography, and reporting period, but whose boundary aligns almost exactly with the dataset's two-cohort construction history --- a source-cohort confound that we read as an internal consistency check on the imputation rather than as a substantive epidemiological finding.

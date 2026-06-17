@@ -1,0 +1,133 @@
+\contentsline {chapter}{Declaration}{ii}{chapter*.1}%
+\contentsline {chapter}{Approval}{iii}{chapter*.2}%
+\contentsline {chapter}{Dedication}{iv}{chapter*.3}%
+\contentsline {chapter}{Acknowledgment}{v}{chapter*.4}%
+\contentsline {chapter}{Abstract}{vi}{chapter*.5}%
+\contentsline {chapter}{List of Figures}{vii}{chapter*.6}%
+\contentsline {chapter}{List of Tables}{viii}{chapter*.7}%
+\contentsline {chapter}{List of Abbreviations and Acronyms}{ix}{chapter*.8}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Background of the Study}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Research Motivation}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Research Objectives}{2}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Scope and Significance of the Research}{3}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Research Contributions}{3}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Complex Engineering Analysis}{4}{section.1.7}%
+\contentsline {subsection}{\numberline {1.7.1}Complex Engineering Problems}{4}{subsection.1.7.1}%
+\contentsline {subsection}{\numberline {1.7.2}Complex Engineering Activities}{5}{subsection.1.7.2}%
+\contentsline {section}{\numberline {1.8}Thesis Organisation}{5}{section.1.8}%
+\contentsline {section}{\numberline {1.9}Summary}{6}{section.1.9}%
+\contentsline {chapter}{\numberline {2}Background Study and Literature Review}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{7}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Suicide in Bangladesh: Current Knowledge}{7}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Challenges with Newspaper-Based Suicide Datasets}{8}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Related Work on Missing Data Imputation in Public Health}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Related Work on Clustering in Suicide and Mental Health Research}{9}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Problem Analysis and Research Gap}{11}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Summary}{13}{section.2.7}%
+\contentsline {chapter}{\numberline {3}Research Methodology}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview of the Proposed Framework}{14}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Dataset Analysis}{15}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Data Collection and Expansion}{15}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Removal of Irrelevant and Sensitive Columns}{15}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Missing Value Analysis (Pre-Imputation)}{15}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Detailed Preprocessing Pipeline}{16}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Column Standardization \& Type Correction}{16}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Date \& Time Standardization}{16}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Categorical Value Harmonization (Manual + Semi-automated)}{16}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Conditional Filling Using External APIs}{16}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}Feature Engineering \& Final Cleaning}{17}{subsection.3.3.5}%
+\contentsline {subsection}{\numberline {3.3.6}Encoding Strategy}{17}{subsection.3.3.6}%
+\contentsline {subsubsection}{\numberline {3.3.6.1}Ordinal Encoding}{17}{subsubsection.3.3.6.1}%
+\contentsline {subsubsection}{\numberline {3.3.6.2}One-Hot Encoding}{17}{subsubsection.3.3.6.2}%
+\contentsline {subsubsection}{\numberline {3.3.6.3}Frequency (Proportional) Encoding}{17}{subsubsection.3.3.6.3}%
+\contentsline {subsubsection}{\numberline {3.3.6.4}Numerical Features}{17}{subsubsection.3.3.6.4}%
+\contentsline {subsubsection}{\numberline {3.3.6.5}Label Encoding (Special Case)}{18}{subsubsection.3.3.6.5}%
+\contentsline {subsubsection}{\numberline {3.3.6.6}Decoding Preparation}{18}{subsubsection.3.3.6.6}%
+\contentsline {section}{\numberline {3.4}Imputation Strategies}{18}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Common Functionalities of All Three Methods}{18}{subsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.1.1}Predictor Selection Strategies}{18}{subsubsection.3.4.1.1}%
+\contentsline {subsubsection}{\numberline {3.4.1.2}Constraints}{19}{subsubsection.3.4.1.2}%
+\contentsline {paragraph}{\numberline {3.4.1.2.1}Note on temperature unit consistency.}{19}{paragraph.3.4.1.2.1}%
+\contentsline {subsubsection}{\numberline {3.4.1.3}Functions Overview (Generalized Workflow)}{19}{subsubsection.3.4.1.3}%
+\contentsline {subsection}{\numberline {3.4.2}Method-Specific Adaptations}{21}{subsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.2.1}Multiple Imputation by Chained Equations (MICE)}{21}{subsubsection.3.4.2.1}%
+\contentsline {subsubsection}{\numberline {3.4.2.2}K-Nearest Neighbours (KNN)}{21}{subsubsection.3.4.2.2}%
+\contentsline {subsubsection}{\numberline {3.4.2.3}MissForest}{21}{subsubsection.3.4.2.3}%
+\contentsline {subsection}{\numberline {3.4.3}Post-Imputation Processing}{21}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Summary of Imputation Variants}{21}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Clustering Algorithms}{22}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Dataset Preparation for Clustering}{22}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Overview and Rationale}{22}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Common Preprocessing and Evaluation}{23}{subsection.3.5.3}%
+\contentsline {subsubsection}{\numberline {3.5.3.1}Preprocessing Pipeline}{23}{subsubsection.3.5.3.1}%
+\contentsline {subsubsection}{\numberline {3.5.3.2}Optimal Cluster Number Determination}{23}{subsubsection.3.5.3.2}%
+\contentsline {subsubsection}{\numberline {3.5.3.3}Hyperparameter Tuning Strategy}{23}{subsubsection.3.5.3.3}%
+\contentsline {subsection}{\numberline {3.5.4}Method-Specific Adaptations}{23}{subsection.3.5.4}%
+\contentsline {subsubsection}{\numberline {3.5.4.1}K-Means (Centroid-based)}{23}{subsubsection.3.5.4.1}%
+\contentsline {subsubsection}{\numberline {3.5.4.2}Agglomerative Clustering (Hierarchical)}{24}{subsubsection.3.5.4.2}%
+\contentsline {subsubsection}{\numberline {3.5.4.3}DBSCAN (Density-based)}{24}{subsubsection.3.5.4.3}%
+\contentsline {subsubsection}{\numberline {3.5.4.4}Spectral Clustering (Graph-based)}{24}{subsubsection.3.5.4.4}%
+\contentsline {subsection}{\numberline {3.5.5}Overall Clustering Pipeline}{25}{subsection.3.5.5}%
+\contentsline {subsection}{\numberline {3.5.6}Summary of Clustering Combinations}{27}{subsection.3.5.6}%
+\contentsline {subsection}{\numberline {3.5.7}Computational Considerations}{27}{subsection.3.5.7}%
+\contentsline {section}{\numberline {3.6}Evaluation Metrics and Combined Score Ranking}{28}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Overview of Evaluation Approach}{28}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Standard Clustering Validation Metrics}{28}{subsection.3.6.2}%
+\contentsline {paragraph}{\numberline {3.6.2.0.1}Silhouette Score \cite {ref17}.}{29}{paragraph.3.6.2.0.1}%
+\contentsline {paragraph}{\numberline {3.6.2.0.2}Calinski--Harabasz Index (Variance Ratio Criterion) \cite {ref18}.}{29}{paragraph.3.6.2.0.2}%
+\contentsline {paragraph}{\numberline {3.6.2.0.3}Davies--Bouldin Index \cite {ref19}.}{29}{paragraph.3.6.2.0.3}%
+\contentsline {paragraph}{\numberline {3.6.2.0.4}Dunn Index \cite {ref20}.}{29}{paragraph.3.6.2.0.4}%
+\contentsline {paragraph}{\numberline {3.6.2.0.5}Xie--Beni Index \cite {ref21}.}{29}{paragraph.3.6.2.0.5}%
+\contentsline {subsection}{\numberline {3.6.3}Study-Specific Balance Penalty Term}{30}{subsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.6.4}Composite Scoring and Ranking Framework}{30}{subsection.3.6.4}%
+\contentsline {subsection}{\numberline {3.6.5}Group-Level Comparisons}{31}{subsection.3.6.5}%
+\contentsline {subsection}{\numberline {3.6.6}Additional Analysis for Best Cases}{31}{subsection.3.6.6}%
+\contentsline {section}{\numberline {3.7}Summary of the Complete Pipeline}{31}{section.3.7}%
+\contentsline {chapter}{\numberline {4}Implementation and Result Analysis}{33}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Implementation Overview}{33}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Cluster Quality Comparison}{34}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Initial Manual Evaluation}{34}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Composite Scoring and Ranking}{34}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Visual Comparison of Combined Scores}{35}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Optimal Parameters and Performance Summary}{38}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Group-Level Analysis}{38}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Metric-Specific Performance}{39}{subsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.1.1}Balance}{39}{subsubsection.4.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.4.1.2}Silhouette Score}{39}{subsubsection.4.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.4.1.3}Calinski--Harabasz Index}{40}{subsubsection.4.4.1.3}%
+\contentsline {subsubsection}{\numberline {4.4.1.4}Dunn Index}{40}{subsubsection.4.4.1.4}%
+\contentsline {subsubsection}{\numberline {4.4.1.5}Davies--Bouldin Index}{41}{subsubsection.4.4.1.5}%
+\contentsline {subsubsection}{\numberline {4.4.1.6}Xie--Beni Index}{41}{subsubsection.4.4.1.6}%
+\contentsline {subsection}{\numberline {4.4.2}Group Average Comparisons}{41}{subsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.2.1}Comparison of Imputation Strategies}{42}{subsubsection.4.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.4.2.2}Context-Aware vs.\ No-Context Imputation}{42}{subsubsection.4.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.4.2.3}Comparison of Clustering Algorithms}{43}{subsubsection.4.4.2.3}%
+\contentsline {section}{\numberline {4.5}Key Takeaways}{43}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Detailed Profiling of the Top-Ranked Cluster}{44}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Numerical Feature Profiling}{45}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Categorical Feature Profiling}{46}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Geographic Profiling}{48}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}Temporal Pattern and Source-Cohort Confound}{49}{subsection.4.6.4}%
+\contentsline {section}{\numberline {4.7}Discussion of Findings}{49}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Summary}{50}{section.4.8}%
+\contentsline {chapter}{\numberline {5}Standards, Constraints, and Milestones}{51}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Sustainability Standards}{51}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Impacts on Society}{52}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Ethical Considerations}{53}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Challenges Faced}{53}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Constraints}{54}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Project Timeline and Milestones}{55}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Data and Code Availability}{56}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Summary}{56}{section.5.8}%
+\contentsline {chapter}{\numberline {6}Conclusion}{57}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary of the Study}{57}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Key Findings}{57}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Achievement of Research Objectives}{58}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Limitations of the Study}{59}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Directions for Future Work}{60}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Concluding Remarks}{61}{section.6.6}%
+\contentsline {chapter}{References}{62}{section*.52}%
+\contentsline {chapter}{Annex}{66}{chapter*.54}%
+\contentsfinish 

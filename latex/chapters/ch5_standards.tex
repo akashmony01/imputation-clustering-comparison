@@ -1,0 +1,124 @@
+% Chapter 5: Standards, Constraints, and Milestones
+\chapter{Standards, Constraints, and Milestones}
+
+\section{Sustainability Standards}
+
+Sustainable data-science and public-health research demands that outputs, methods, and data artefacts remain useful, reproducible, and ethically sound beyond the immediate project. The study aligns with the United Nations 2030 Agenda for Sustainable Development \cite{ref24} across three goals relevant to suicide prevention and mental health research.
+
+\textbf{SDG 3 (Good Health and Well-being) --- Target 3.4.} SDG~3.4 calls on member states to reduce premature mortality from non-communicable diseases (NCDs) by one third and to promote mental health and well-being \cite{ref25}, and suicide is tracked explicitly as indicator SDG~3.4.2 (suicide mortality rate, per 100,000 population). Subject to the source-cohort and reported-cases caveats set out in Chapter~4 and \S6.4, the study contributes hypothesis-generating evidence towards this target in Bangladesh by surfacing candidate demographic, geographic, and temporal patterns within the reported-case cohort that warrant follow-up in more homogeneously sourced data --- prerequisites for designing targeted prevention programmes.
+
+\textbf{SDG 5 (Gender Equality) --- Target 5.2.} The cluster-level descriptive statistics in Chapter~4 show that, within the reported-suicide records analysed here, female cases --- particularly young married women and female students associated with family conflict, academic pressure, and relationship-related distress --- form a substantial share of one of the two recovered subgroups. SDG~5 calls for the elimination of all forms of violence against and exploitation of women and girls \cite{ref24}. Subject to the caveats in \S\ref{sec:source_cohort_caveat} and \S6.4 (the cluster split is partly confounded with collection source, and the dataset is drawn from reported cases rather than from a representative population sample), the descriptive evidence here can inform the design of more gender-sensitive mental-health and suicide-prevention research and outreach.
+
+\textbf{SDG 10 (Reduced Inequalities).} The geographic and socioeconomic profiling in this study is consistent with the broader literature on rural--urban inequality in Bangladesh \cite{ref50}, and SDG~10 calls for reducing inequalities within and among countries \cite{ref24}. The cluster-level descriptive identification of rural, low-income, and agriculturally dependent populations within the reported-suicide records provides a starting point --- not a definitive epidemiological estimate --- for directing future research and resource-allocation discussions towards potentially under-served communities.
+
+Beyond SDG alignment, the work was designed for long-term sustainability in three additional ways. Code, preprocessing scripts, and the de-identified dataset will be released publicly under an open-source licence (see \S\ref{sec:data_availability}), enabling other researchers in resource-constrained settings to replicate, extend, or adapt the methodology. The modular 12-notebook architecture means that each component --- data cleaning, imputation, clustering, evaluation --- can be updated independently as new data or improved methods emerge. And the pipeline relies exclusively on free, open-source libraries (scikit-learn, pandas, NumPy, Geopy, Meteostat) and free compute resources (Google Colab), so the framework remains accessible to LMIC researchers without institutional access to commercial software or high-performance computing.
+
+\section{Impacts on Society}
+
+Research on a topic this sensitive carries the potential for significant positive impact and, if handled carelessly, real harm; both dimensions are addressed below.
+
+\textbf{Positive impacts.} The primary intended benefit is the contribution to evidence-based suicide-prevention research in Bangladesh. Machine-learning approaches applied to public-health data are well documented as a means of identifying subgroups that aggregate-level analyses would miss \cite{ref43,ref44,ref53}, and the cluster-level descriptive profiles surfaced here --- contrasting the modal demographic and contextual features of one cohort-aligned cluster against the other --- offer a starting point that stakeholders can use to scope more targeted follow-up research and outreach, subject to the source-confound and data-source biases discussed in \S\ref{sec:source_cohort_caveat} and \S6.4. Table~\ref{tbl:expected_societal_impacts_by_s} summarises potential applications for specific stakeholder groups.
+
+\begin{table}[H]
+\centering
+\caption[Potential applications by stakeholder group]{Potential applications of cluster-level findings by stakeholder group (presented as hypothesis-generating, subject to source-confound caveats in \S\ref{sec:source_cohort_caveat} and \S6.4).}
+\label{tbl:expected_societal_impacts_by_s}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.611\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.389\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Stakeholder} & \textbf{Expected Impact} \\ \hline
+Ministry of Health and Family Welfare & Evidence-based identification of high-risk demographic groups and geographic districts to prioritise prevention programmes and resource allocation. \\ \hline
+NGOs and Mental Health Helplines & Cluster-specific risk profiles enable better targeting of outreach, helpline staffing during high-risk seasons, and community awareness campaigns. \\ \hline
+Schools and Universities & Insights into student-specific triggers (academic pressure, exam periods, family conflict) can inform early identification and peer-support programme design. \\ \hline
+Rural Development Agencies & Geographic risk profiling highlights high-burden rural districts, supporting targeted livelihood and debt-relief interventions among at-risk populations. \\ \hline
+Researchers and Data Scientists & The reproducible 32-pipeline framework and publicly released de-identified dataset provide a methodological foundation for future studies on incomplete social datasets in South Asia. \\ \hline
+Media and Journalists & Empirical cluster findings provide a data-driven basis for responsible, non-sensational suicide reporting that highlights structural risk factors rather than individual narratives. \\ \hline
+\end{tabularx}
+\end{table}
+
+\textbf{Negative impacts and risks.} Algorithmic bias is a well-documented risk in ML applications to public-health data, particularly when training datasets come from non-representative sources \cite{ref45,ref46}. Newspaper-reported cases over-represent urban, female, and more unusual suicide incidents, so any patterns identified through clustering reflect the biases of the source data rather than the true population distribution and should be read as patterns within reported cases, not as prevalence estimates. A second risk is misuse: geographic risk profiling, valuable for resource allocation, could contribute to stigmatising specific districts or demographic groups if communicated irresponsibly. The risk is mitigated by framing all cluster descriptions in terms of structural risk factors (poverty, academic pressure, domestic conflict) rather than intrinsic characteristics of the populations concerned, in line with established ethical guidance on mental-health data communication \cite{ref22}.
+
+\section{Ethical Considerations}
+
+Suicide research is among the most ethically sensitive areas in the social sciences and demands careful attention to privacy, non-maleficence, and the potential for harm to affected communities. The study followed six principles.
+
+\textbf{Privacy and de-identification.} The \texttt{full\_name} column was removed at the earliest preprocessing stage, and the exact address field was standardised to district-level labels only --- a deliberate trade-off that reduces spatial precision while preserving analytical utility. The source URL (\texttt{data\_source} column) was also permanently removed to prevent traceback to individual articles. These measures follow best-practice guidance on psychiatric and behavioural research data \cite{ref22} and constitute de-identification rather than formal $k$-anonymity: the residual combination of district, suicide date, age, and method could, in principle, still re-identify a recent newsworthy case, and the dataset is therefore released under a research-use licence with the explicit caveat that re-users must not attempt re-identification.
+
+\textbf{Sensitive-topic handling.} Method-of-suicide information is retained only in encoded form within the analytical dataset and is never reproduced at the individual case level in any output or visualisation; all cluster profiling is aggregated, consistent with responsible data communication practices for this domain \cite{ref23}.
+
+\textbf{Non-stigmatisation.} Algorithmic pattern-finding can inadvertently reinforce harmful stereotypes about particular groups, so all cluster findings are framed in terms of socioeconomic, environmental, and situational risk factors rather than personal or cultural failings. The language used in cluster labelling and profiling was reviewed to ensure it does not pathologise individuals or communities.
+
+\textbf{Data-source legitimacy.} All newspaper records came from publicly available, freely accessible Bangladeshi news sources; no private medical records, police files, or non-public databases were accessed. The use of publicly available media content for academic suicide research is an established and ethically accepted practice in the field \cite{ref23}.
+
+\textbf{Beneficence.} The overarching ethical justification for the work is its long-term potential to contribute to life-saving prevention. The study aims to produce interpretable subgroup structure that can inform downstream prevention-focused research, not a standalone deployable risk-stratification system, and this orientation shaped methodological choices --- including the decision to prioritise interpretable cluster solutions over those with marginally higher geometric metrics.
+
+\textbf{Algorithmic fairness.} ML models trained on biased data can systematically disadvantage under-represented groups \cite{ref45,ref46}. The balance penalty term introduced here penalises clustering solutions with highly unequal cluster sizes; this is a stability and interpretability safeguard against dominant-cluster artefacts rather than a substantive fairness intervention, and we make no formal fairness-guarantee claim. Imputation and clustering outputs were inspected across demographic subgroups (gender, age group, geographic region) for obvious systematic distortions before finalising cluster profiles.
+
+\section{Challenges Faced}
+
+Implementation involved several technical, methodological, and logistical challenges, summarised in Table~\ref{tbl:key_challenges_encountered_and} with the solutions applied.
+
+\begin{table}[H]
+\centering
+\caption[Key challenges and solutions]{Key challenges encountered and solutions applied during the research}
+\label{tbl:key_challenges_encountered_and}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.889\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.111\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Challenge Encountered} & \textbf{Solution Applied} \\ \hline
+Extreme missingness ($>$90\%) in several key columns (previous mental health history, family size) & Columns above 70\% missingness permanently excluded; remaining columns treated with three advanced imputation methods under two predictor strategies \\ \hline
+Inconsistent Bangla--English spellings and over-granular categorical labels across 13 columns & Iterative manual cleaning and semantic harmonisation; district-level standardisation of hometown reducing cardinality from 594 to 151 unique values \\ \hline
+No reliable geocoding service for rural Bangladeshi locations & Geopy with a cached JSON fallback system; lat/long missingness reduced from $\sim$53\% to 6.49\% \\ \hline
+Weather API rate limits and missing records for remote locations & Hourly-to-daily fallback strategy with extensive local caching; partial reduction in weather-variable missingness \\ \hline
+High computational cost of MissForest imputation (100 trees $\times$ 29 label-encoded features $\times$ 1{,}617 rows, repeated per variant) & Cached intermediate outputs and modular notebook structure enabling incremental execution on the free Colab tier without losing progress \\ \hline
+Standard clustering validity metrics favoured geometrically tight but practically useless solutions (e.g.\ DBSCAN with 99\% noise) & Study-specific balance penalty term weighted at 35\% in the composite score, demoting imbalanced and noise-heavy solutions \\ \hline
+Choosing encoding for 13 heterogeneous categorical variables with widely different cardinalities & Four encoding strategies applied by feature type: ordinal for ordered features, one-hot for low-cardinality nominals, frequency for high-cardinality nominals, and label encoding for MissForest \\ \hline
+\end{tabularx}
+\end{table}
+
+The most consequential of these was the evaluation problem: certain DBSCAN configurations produced silhouette scores above 0.87 while clustering only 6 records out of 1{,}617 --- technically high yet practically worthless. The observation, made during early manual inspection of the 32 pipeline outputs, directly motivated the balance metric and was the defining methodological insight that shaped the evaluation framework, illustrating the broader risk of relying on a single metric for unsupervised evaluation in applied social-science contexts.
+
+\section{Constraints}
+
+Alongside the technical challenges, the research operated under structural constraints summarised in Table~\ref{tbl:structural_constraints_affecti}.
+
+\begin{table}[H]
+\centering
+\caption[Structural constraints affecting scope and generalisability]{Structural constraints affecting the scope and generalisability of the research}
+\label{tbl:structural_constraints_affecti}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.447\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.553\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Constraint Type} & \textbf{Description} \\ \hline
+Data & Limited to newspaper-reported completed suicides only. Suicide attempts, unreported cases, and clinical or police records are not captured, introducing systematic under-coverage bias. \\ \hline
+Geographical & Rural areas are under-represented because local and vernacular newspapers are harder to access digitally, and remote incidents receive less media coverage. \\ \hline
+Temporal & Data spans 2017--2025; long-term secular trends and pre-2017 patterns cannot be analysed, and the dataset is not updated in real time. \\ \hline
+Methodological & Limited to unsupervised exploratory subgroup analysis; no supervised prediction model is developed, and no external ground-truth labels are available to validate cluster assignments. \\ \hline
+Hardware and Budget & Pipeline executed on free, student-tier resources (Google Colab, GitHub); MissForest was the dominant runtime cost in the imputation stage and bounded the number of hyperparameter combinations that could be explored. \\ \hline
+Language & Bangla free-text columns (e.g.\ \texttt{profession\_description}, \texttt{reason\_description}) could not be processed with standard NLP tools and were excluded. \\ \hline
+\end{tabularx}
+\end{table}
+
+The data constraint is the most consequential: because the dataset is drawn exclusively from newspaper-reported completed suicides, the findings cannot be generalised to suicide attempts, unreported deaths, or cases that received no media coverage. This structural bias is inherent to newspaper-based suicide research in LMICs \cite{ref23} and is the primary caveat any policymaker or practitioner using these findings should bear in mind.
+
+\section{Project Timeline and Milestones}
+
+The research was conducted over 25 weeks. Figure~\ref{fig:gantt_timeline} presents the project timeline as a Gantt chart organised by week across the nine major task groups; all milestones were met within the planned duration. The most time-intensive phases were the manual data collection (weeks 4--7) --- which required careful per-case verification against multiple source articles --- and the imputation implementation (weeks 15--18), which required not only three distinct imputation algorithms under two predictor strategies but also custom post-imputation processing (one-hot group correction, ordinal rounding) to keep all six imputed datasets analytically coherent. The clustering experiments (weeks 19--21) were the most computationally demanding phase, with grid search and fine-tuning across up to 20 parameter combinations per algorithm per dataset; the final evaluation and profiling phase (weeks 22--23) was the most analytically intensive, covering the composite scoring framework, group-level comparisons, and full decoding and interpretation of the best-performing cluster solution.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=0.55\textheight,keepaspectratio]{gantt_timeline.png}
+  \caption[Project timeline across 25 weeks and nine task groups]{Project timeline Gantt chart spanning 25 weeks across nine task groups (literature review and base data collection, manual case expansion, data cleaning, conditional API filling, feature engineering and encoding, six-variant imputation, four-algorithm clustering, composite scoring and cluster profiling, and report writing). All tasks completed within the planned schedule.}
+  \label{fig:gantt_timeline}
+\end{figure}
+
+\section{Data and Code Availability}\label{sec:data_availability}
+
+Following the open and replicable orientation declared above, all artefacts required to reproduce the study are released publicly. The expanded dataset (1{,}617 records, 2017--2025, including the nine added socio-economic and clinical attributes), the twelve Colab notebooks that constitute the pipeline (\texttt{0\_preprocessing} through \texttt{11\_comparing\_clustering}), the per-stage intermediate datasets (\texttt{0\_original.xlsx} through \texttt{11\_forest\_no\_context.xlsx}, plus per-algorithm clustering outputs in \texttt{datasets/\{agg, kmeans, dbscan, spc\}/}), and the cached geocoding and weather responses are distributed together, so any stage can be re-run independently of the original API services. The repository is available at \url{https://github.com/akashmony01/imputation-clustering-comparison}. The source code is released under the MIT License and the dataset under the Creative Commons Attribution 4.0 International (CC-BY 4.0) licence, with the ethical safeguards described in the Ethical Considerations section carried forward: no personally identifying information is published, victim names and exact addresses are removed at the source-collection stage, and only district-level geographic resolution is retained for hometown fields. Re-users are asked to follow the safe-reporting framing discussed there and to cite this work together with the original Kaggle base dataset \cite{ref5} that the expanded corpus extends.
+
+\section{Summary}
+
+The chapter placed the technical work of preceding chapters in its engineering, ethical, and societal context. It mapped the cluster-level findings to concrete stakeholder applications --- from ministerial planning and NGO outreach to schools, rural-development agencies, and responsible journalism --- while framing them as hypothesis-generating rather than deployment-ready, subject to source-confound and reporting biases carried forward from earlier chapters. The ethical principles, technical challenges, structural constraints, and 25-week timeline were each set out explicitly so that the limits of the work are clear to the reader. Chapter~6 draws these strands together with the findings, limitations, and forward-looking directions implied by the entire study.

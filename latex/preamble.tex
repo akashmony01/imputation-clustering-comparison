@@ -1,0 +1,203 @@
+% =============================================================
+%  Preamble — BUBT CSE Capstone formatting
+% =============================================================
+
+% Page geometry: a strict 1in margin from page edge to body text on ALL four sides.
+% The header is empty (\fancyhf{} below) so we set headheight and headsep to 0,
+% meaning the body literally starts 1in from the top edge — no invisible header
+% reservation pushing it down. footskip places the page-number footer inside the
+% 1in bottom margin.
+\usepackage[a4paper,
+            top=1in,bottom=1in,left=1in,right=1in,
+            headheight=0pt,headsep=0pt,footskip=20pt]{geometry}
+
+% Times-compatible font stack.
+% newtxtext provides true bold weight (700) for headings; newtxmath provides
+% Times-matched math. Loading both keeps text and math in the same family,
+% eliminating mismatched-font warnings from mathptmx (zptmcm*, ptmb7t, ptmri7t,
+% msam10, msbm10) and the lighter-bold fallback the old setup had.
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}        % must load BEFORE newtxmath
+\usepackage{newtxtext}
+\usepackage{newtxmath}      % Times-compatible math, also provides \mathbb, \Bbbk, etc.
+
+% 1.5 line spacing
+\usepackage{setspace}
+\setstretch{1.15}
+
+% Justified text
+\usepackage{ragged2e}
+
+% Headings
+\usepackage[explicit]{titlesec}
+\usepackage{titletoc}
+
+% Allow up to 4 levels of section numbering (1.1.1.1)
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3}
+
+% Numbered chapter heading (Ch 1–6, appendix): "Chapter N" centered huge bold,
+% then "N. Title" left-aligned bold (matches BUBT example reports).
+% The \vspace*{-0.5in} pulls the heading up so its top sits closer to the page
+% edge — visually balancing the top space with the side margins.
+\titleformat{\chapter}[display]
+  {\vspace*{-0.5in}\normalfont\bfseries}
+  {\filcenter\huge\bfseries Chapter \thechapter}
+  {24pt}
+  {\LARGE\bfseries \thechapter.\enspace #1}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+
+% Unnumbered (starred) chapter heading — used by frontmatter (abstract,
+% dedication, etc.) and references. Just the title, centered, no "Chapter N"
+% line and no leading number. Same negative top-shift as the numbered version.
+\titleformat{name=\chapter,numberless}[display]
+  {\vspace*{-0.5in}\normalfont\bfseries}
+  {}
+  {0pt}
+  {\filcenter\huge\bfseries #1}
+\titlespacing*{name=\chapter,numberless}{0pt}{0pt}{18pt}
+
+% Hierarchy: section > subsection > subsubsection in size; all bold.
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection.}{0.6em}{#1}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection.}{0.6em}{#1}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection.}{0.6em}{#1}
+\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries}{}{0pt}{#1}
+
+% Tightened section/subsection/subsubsection spacing (S4 of tightening pass)
+\titlespacing*{\section}{0pt}{8pt plus 2pt minus 1pt}{4pt}
+\titlespacing*{\subsection}{0pt}{6pt plus 2pt minus 1pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{5pt plus 1pt minus 1pt}{2pt}
+
+% Block-style paragraphs (no first-line indent + vertical gap between),
+% matching the BUBT example reports.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35\baselineskip plus 1pt minus 1pt}
+
+% Headers/footers — page number bottom-right only
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[R]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% Graphics
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{tabularx}
+\usepackage{float}   % provides [H] to force float placement
+
+% placeins: provides \FloatBarrier to prevent floats from drifting past a
+% specified boundary. With [section] option, the barrier is applied
+% automatically at every \section so a figure declared in §4.2 cannot
+% physically appear inside §4.3's text, which would otherwise split a
+% sentence across the figure.
+\usepackage[section]{placeins}
+% Extend the barrier to subsection and subsubsection too: a figure declared
+% inside a subsection can never physically appear inside the next subsection
+% or subsubsection. This is what prevents sentence-splitting by drifting floats.
+\usepackage{etoolbox}
+\preto\subsection{\FloatBarrier}
+\preto\subsubsection{\FloatBarrier}
+
+% Captions: bold "Figure N:" / "Table N:" then descriptive text
+\usepackage[labelfont=bf,labelsep=colon,format=plain,
+            justification=centering,font=small]{caption}
+\usepackage{subcaption}
+
+% Tighten whitespace around floats + captions (page-reduction + tightening passes)
+\setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
+\setlength{\floatsep}{5pt plus 1pt minus 1pt}
+\setlength{\intextsep}{5pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{0pt}
+
+% Anchor floats to the TOP of float pages (default \@fptop has 1fil
+% vertical glue, which centers the float vertically). With these settings,
+% any figure that LaTeX puts on its own page lands flush with the top margin,
+% subsequent floats are stacked with a tight 10pt gap (no stretch), and any
+% leftover space accumulates at the bottom.
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{10pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+
+% Tighter display-equation spacing (S5 of tightening pass)
+\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{2pt plus 1pt minus 1pt}
+\setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
+
+% Default array stretch (S1 of tightening pass): override per-table 1.05 settings.
+\renewcommand{\arraystretch}{1.0}
+
+% Math
+% amsmath already loaded at top (before newtxmath). amssymb dropped:
+% newtxmath provides \mathbb, \Bbbk, and the rest. Re-adding amssymb would
+% conflict with newtxmath's \Bbbk definition.
+
+% Lists
+\usepackage{enumitem}
+% Keep lists compact so global \parskip doesn't inflate item spacing.
+\setlist{topsep=0.15\baselineskip, partopsep=0pt, itemsep=0pt, parsep=0pt}
+
+% IEEE-style numeric citations: compresses [1,2,3] into [1--3]
+% Loaded BEFORE hyperref per the cite package documentation.
+\usepackage{cite}
+
+% Hyperlinks
+\usepackage[colorlinks=false,hidelinks]{hyperref}
+
+% References — using bibtex (built into Tectonic, no extra install needed)
+% IEEEtran.bst gives IEEE numeric style
+% Rename the auto-generated bibliography heading from "Bibliography" to "References"
+\renewcommand{\bibname}{References}
+
+% URL formatting (xurl breaks long URLs at any character to prevent overfull)
+\usepackage{xurl}
+\Urlmuskip=0mu plus 1mu
+
+% Microtype: protrusion + expansion → fewer overfull/underfull warnings
+\usepackage{microtype}
+
+% Allow more flexible word/line breaks for borderline-fitting paragraphs
+\sloppy
+\emergencystretch=5em
+\hbadness=10000   % suppress underfull hbox warnings (cosmetic only)
+\hfuzz=2pt        % tolerate minor (<2pt) overfull boxes silently
+
+% Landscape pages for wide tables
+\usepackage{pdflscape}
+\usepackage{lscape}
+
+% Avoid orphaned headings
+\usepackage[bottom]{footmisc}
+\widowpenalty=10000
+\clubpenalty=10000
+% Forbid a hyphenated word from being split across a page break
+% (the second half of "de- scribe" must not land on the next page).
+\brokenpenalty=10000
+
+% Custom title-page rule (renamed to avoid clash with titlesec's \titlerule)
+\newcommand{\titlepagerule}{\noindent\rule{\textwidth}{0.5pt}}
+
+% Chapter-prefixed equation numbering (3.1, 3.2, ...). Numbering is
+% fully automatic: each \begin{equation} block gets the next number,
+% and equations renumber automatically if any are added, removed, or
+% reordered. Reference any equation with \eqnref{eq:label} → "Eq. 3.4".
+\numberwithin{equation}{chapter}
+\newcommand{\eqnref}[1]{Eq.~\ref{#1}}
+\newcommand{\Eqnref}[1]{Equation~\ref{#1}}

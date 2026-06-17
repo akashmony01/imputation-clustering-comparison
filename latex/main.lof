@@ -1,0 +1,36 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces High-level overview of the six-phase research framework}}{14}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Unified imputation workflow for MICE, KNN, and MissForest}}{20}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Unified clustering workflow across the four algorithms}}{26}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Integrated view of the complete pipeline}}{32}{figure.caption.21}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Composite scoring and ranking heatmap}}{35}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Composite scores for all 32 clustering combinations}}{36}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces PCA scatter grid for top 16 ranked cases}}{36}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Cluster count distribution for top 16 cases}}{37}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Normalised Balance scores across all 32 pipelines}}{39}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Normalised Silhouette scores across all 32 pipelines}}{39}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Normalised Calinski--Harabasz index across all 32 pipelines}}{40}{figure.caption.29}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Normalised Dunn index across all 32 pipelines}}{40}{figure.caption.30}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Normalised Davies--Bouldin index across all 32 pipelines}}{41}{figure.caption.31}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Normalised Xie--Beni index across all 32 pipelines}}{41}{figure.caption.32}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Average metric comparison across imputation strategies}}{42}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Average metric comparison: context-aware vs.\ no-context imputation}}{43}{figure.caption.34}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Average metric comparison across clustering algorithms}}{43}{figure.caption.35}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Comparing age for two clusters}}{46}{figure.caption.38}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Comparing feels\_like for two clusters}}{46}{figure.caption.39}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Comparing reason for two clusters}}{47}{figure.caption.41}%
+\contentsline {figure}{\numberline {4.17}{\ignorespaces Comparing workplace for two clusters}}{48}{figure.caption.42}%
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Comparing spatial density for two clusters}}{48}{figure.caption.43}%
+\contentsline {figure}{\numberline {4.19}{\ignorespaces Comparing years for two clusters}}{49}{figure.caption.44}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Project timeline across 25 weeks and nine task groups}}{56}{figure.caption.48}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A1}{\ignorespaces PCA scatter grid for all 32 pipelines}}{67}{figure.caption.56}%
+\contentsline {figure}{\numberline {A3}{\ignorespaces Numerical feature distributions, best pipeline, part 1}}{67}{figure.caption.58}%
+\contentsline {figure}{\numberline {A2}{\ignorespaces Cluster count across all 32 pipelines}}{68}{figure.caption.57}%
+\contentsline {figure}{\numberline {A4}{\ignorespaces Categorical feature distributions, best pipeline, part 1}}{71}{figure.caption.62}%
+\contentsfinish 
+\contentsfinish 

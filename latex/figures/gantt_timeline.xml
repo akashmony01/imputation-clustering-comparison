@@ -1,0 +1,151 @@
+  <mxfile host="app.diagrams.net" modified="2026-05-15T00:00:00.000Z" agent="claude" version="22.0.0" type="device">
+    <diagram name="Project Timeline Gantt" id="gantt1">
+      <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" 
+  pageHeight="826" math="0" shadow="0">
+        <root>
+          <mxCell id="0" />
+          <mxCell id="1" parent="0" />
+
+          <mxCell id="title" value="Project Timeline — 25 Weeks" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1" vertex="1" parent="1">
+            <mxGeometry x="40" y="20" width="945" height="30" as="geometry" />
+          </mxCell>
+
+          <mxCell id="h_task" value="Task" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontStyle=1;align=center" 
+  vertex="1" parent="1">
+            <mxGeometry x="40" y="60" width="280" height="30" as="geometry" />
+          </mxCell>
+
+          <mxCell id="hw1"  value="1"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="320" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw2"  value="2"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="345" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw3"  value="3"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="370" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw4"  value="4"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="395" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw5"  value="5"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="420" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw6"  value="6"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="445" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw7"  value="7"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="470" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw8"  value="8"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="495" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw9"  value="9"  style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="520" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw10" value="10" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="545" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw11" value="11" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="570" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw12" value="12" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="595" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw13" value="13" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="620" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw14" value="14" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="645" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw15" value="15" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="670" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw16" value="16" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="695" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw17" value="17" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="720" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw18" value="18" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="745" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw19" value="19" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="770" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw20" value="20" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="795" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw21" value="21" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="820" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw22" value="22" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="845" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw23" value="23" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="870" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw24" value="24" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="895" y="60" width="25" height="30" as="geometry"/></mxCell>
+          <mxCell id="hw25" value="25" style="rounded=0;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=10;align=center" vertex="1" 
+  parent="1"><mxGeometry x="920" y="60" width="25" height="30" as="geometry"/></mxCell>
+
+          <mxCell id="t1" value="1. Literature review, research-gap identification, and Kaggle dataset collection" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="90" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r1" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="90" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b1" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="322" y="95" width="71" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t2" value="2. Manual collection of 857 cases (2017–2025); 9 new attributes added" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="120" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r2" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="120" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b2" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="397" y="125" width="96" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t3" value="3. Data cleaning: column names, dates, categorical harmonisation" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="150" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r3" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="150" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b3" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="497" y="155" width="71" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t4" value="4. Conditional filling — Geopy geocoding + Meteostat weather API" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="180" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r4" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="180" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b4" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="572" y="185" width="46" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t5" value="5. Feature engineering + multi-strategy encoding" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="210" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r5" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="210" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b5" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="622" y="215" width="46" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t6" value="6. Imputation — MICE, KNN, MissForest × 2 predictor strategies" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="240" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r6" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="240" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b6" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="672" y="245" width="96" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t7" value="7. Clustering — K-Means, Agglomerative, DBSCAN, Spectral (32 pipelines)" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="270" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r7" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="270" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b7" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="772" y="275" width="71" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t8" value="8. Composite scoring + cluster profiling of best pipeline" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="300" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r8" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="300" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b8" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="847" y="305" width="46" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="t9" value="9. Report writing, figures, references, final documentation" 
+  style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=6;fontSize=10;fillColor=#f5f5f5;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="40" y="330" 
+  width="280" height="30" as="geometry"/></mxCell>
+          <mxCell id="r9" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#cccccc" vertex="1" parent="1"><mxGeometry x="320" y="330" width="625" 
+  height="30" as="geometry"/></mxCell>
+          <mxCell id="b9" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="897" y="335" width="46" 
+  height="20" as="geometry"/></mxCell>
+
+          <mxCell id="legend_box" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#999999" vertex="1" parent="1"><mxGeometry x="40" y="380" width="260" 
+  height="40" as="geometry"/></mxCell>
+          <mxCell id="legend_swatch" value="" style="rounded=1;html=1;fillColor=#2e75b6;strokeColor=#1f4e79" vertex="1" parent="1"><mxGeometry x="50" y="392" 
+  width="30" height="16" as="geometry"/></mxCell>
+          <mxCell id="legend_text" value="Completed task" style="text;html=1;align=left;verticalAlign=middle;fontSize=11" vertex="1" parent="1"><mxGeometry x="90" 
+  y="385" width="200" height="30" as="geometry"/></mxCell>
+
+        </root>
+      </mxGraphModel>
+    </diagram>
+  </mxfile>

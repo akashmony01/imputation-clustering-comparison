@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="kjfY1NcvnUDYp16xm5N9">
+    <mxGraphModel dx="1685" dy="991" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-181" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0c4a6e;fontSize=11;fontStyle=0;arcSize=8;" value="Phase 1&#xa;Data Collection &amp; Expansion&#xa;&#xa;760 → 1,617 records&#xa;2017–2025 · 9 new attributes" vertex="1">
+          <mxGeometry height="100" width="230" x="310" y="287" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-182" edge="1" parent="1" source="aqsLy1OIm8ZkJsslD6G5-181" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#475569;" target="aqsLy1OIm8ZkJsslD6G5-183">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-183" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#7c3aed;fontColor=#2e1065;fontSize=11;fontStyle=0;arcSize=8;" value="Phase 2&#xa;Preprocessing &amp; Conditional Filling&#xa;&#xa;Cleaning · Geopy API · Meteostat API&#xa;lat/long: ~53% → 6.49% missing" vertex="1">
+          <mxGeometry height="100" width="230" x="190" y="447" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-184" edge="1" parent="1" source="aqsLy1OIm8ZkJsslD6G5-183" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#475569;" target="aqsLy1OIm8ZkJsslD6G5-185">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-185" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#ea580c;fontColor=#7c2d12;fontSize=11;fontStyle=0;arcSize=8;" value="Phase 3&#xa;Feature Encoding&#xa;&#xa;Ordinal · One-Hot · Frequency · Label&#xa;29 columns → 48 numerical features" vertex="1">
+          <mxGeometry height="100" width="230" x="460" y="447" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-186" edge="1" parent="1" source="aqsLy1OIm8ZkJsslD6G5-185" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#475569;" target="aqsLy1OIm8ZkJsslD6G5-187">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="580" y="576" />
+              <mxPoint x="145" y="576" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-187" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=0;arcSize=8;" value="Phase 4&#xa;Imputation&#xa;&#xa;MICE × 2 · KNN × 2 · MissForest × 2&#xa;= 6 imputed datasets + 2 baselines" vertex="1">
+          <mxGeometry height="100" width="230" x="30" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-188" edge="1" parent="1" source="aqsLy1OIm8ZkJsslD6G5-187" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#475569;" target="aqsLy1OIm8ZkJsslD6G5-189">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-189" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;fontColor=#831843;fontSize=11;fontStyle=0;arcSize=8;" value="Phase 5&#xa;Clustering&#xa;&#xa;K-Means · Agglomerative · DBSCAN · Spectral&#xa;4 algorithms × 8 datasets = 32 pipelines" vertex="1">
+          <mxGeometry height="100" width="260" x="295" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-190" edge="1" parent="1" source="aqsLy1OIm8ZkJsslD6G5-189" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#475569;" target="aqsLy1OIm8ZkJsslD6G5-191">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-191" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#ca8a04;fontColor=#713f12;fontSize=11;fontStyle=0;arcSize=8;" value="Phase 6&#xa;Evaluation &amp; Ranking&#xa;&#xa;Silhouette · CH · DB · Dunn · XB&#xa;+ Balance Metric → Composite Score" vertex="1">
+          <mxGeometry height="100" width="230" x="590" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-192" edge="1" parent="1" source="aqsLy1OIm8ZkJsslD6G5-191" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#15803d;strokeWidth=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aqsLy1OIm8ZkJsslD6G5-195">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="705" y="736" />
+              <mxPoint x="425" y="736" />
+            </Array>
+            <mxPoint x="425" y="774" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aqsLy1OIm8ZkJsslD6G5-195" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;fontColor=#14532d;fontSize=11;fontStyle=0;arcSize=8;" value="&lt;span style=&quot;font-weight: 700;&quot;&gt;Best Pipeline: Agglomerative + MissForest (No-Context)&lt;/span&gt;&lt;br style=&quot;font-weight: 700;&quot;&gt;&lt;span style=&quot;font-weight: 700;&quot;&gt;Composite Score: 27.30 / 32 · Cluster 0: 759 · Cluster 1: 858&lt;/span&gt;&lt;br style=&quot;font-weight: 700;&quot;&gt;&lt;span style=&quot;font-weight: 700;&quot;&gt;Temporal separation: 2020 vs 2017–2025 (emergent without supervision)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="370" x="240" y="771" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

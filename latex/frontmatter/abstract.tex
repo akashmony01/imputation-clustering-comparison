@@ -1,0 +1,46 @@
+% =============================================================
+%  ABSTRACT
+% =============================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\begingroup
+\setlength{\parskip}{0pt}
+\setstretch{1.2}
+
+\noindent Clustering on social datasets assembled from heterogeneous sources is
+prone to recovering data-collection-source structure before phenomenon-level
+structure, while standard internal validity indices can reward such degenerate
+partitions as ``tight'' clusterings. Reliable analysis on this kind of input
+therefore depends on the joint choice of imputation method, clustering
+algorithm, and evaluation metric. This study constructs and systematically
+evaluates a factorial benchmark of these three choices on 1,617 incomplete,
+newspaper-derived Bangladeshi suicide cases (KNN and MissForest variants impute
+all 1,617 rows; the MICE variants retain 1,613 after dropping four rows whose
+near-empty predictor profile prevented convergent imputation) --- the largest
+publicly assembled record
+of its kind for a country that lacks any centralised national suicide
+registry. Three imputation methods (MICE, KNN, MissForest) and four clustering
+algorithms (K-Means, Agglomerative, DBSCAN, Spectral) are evaluated under two
+predictor strategies (context-aware, no-context), producing 32 pipelines plus
+two encoded baselines, each scored by a six-component composite (Silhouette,
+Calinski--Harabasz, Davies--Bouldin, Dunn, Xie--Beni, and a study-specific
+balance penalty designed to discourage near-degenerate cluster assignments).
+The best configuration --- Agglomerative + MissForest, no-context --- achieves
+a composite of 27.30/32 and a two-cluster solution that aligns almost
+perfectly with the dataset's 2020 Kaggle vs.\ 2017--2019 + 2021--2025 manual
+cohort boundary. The cluster boundary is therefore partly confounded
+with collection source: any signal it captures is intertwined with reporting
+era, completeness, and source heterogeneity, and the results should be read as
+exploratory subgroup structure rather than discovery of distinct
+epidemiological categories. Subject to this caveat, the framework
+surfaces stable, interpretable structure from severely incomplete newspaper
+data and exposes source-cohort artefacts that simpler single-method workflows
+would conceal.
+
+\vspace{0.15in}
+\noindent Keywords: suicide patterns; missing data; multiple imputation;
+MissForest; clustering; cluster validity; Bangladesh.
+
+\endgroup
+\clearpage

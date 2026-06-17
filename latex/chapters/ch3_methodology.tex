@@ -1,0 +1,468 @@
+% Chapter 3: Research Methodology
+\chapter{Research Methodology}
+
+\section{Overview of the Proposed Framework}
+
+The study follows a systematic, reproducible methodological framework designed for highly incomplete, mixed-type, real-world social data. As shown in Figure~\ref{fig:methodology_framework_overview}, the complete pipeline runs through six phases: (1) data collection and expansion; (2) intensive preprocessing and conditional filling; (3) advanced feature encoding; (4) multiple imputation strategies combining three methods with two predictor-selection regimes; (5) clustering using four algorithms; and (6) comprehensive composite evaluation.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{image21.png}
+  \caption[High-level overview of the six-phase research framework]{High-level overview of the six-phase research framework adopted in this study.}
+  \label{fig:methodology_framework_overview}
+\end{figure}
+
+The pipeline produces eight datasets in total --- six fully imputed and two non-imputed baselines. Each dataset is clustered by all four algorithms, giving 32 end-to-end clustering solutions that are subsequently evaluated and ranked via the composite internal-validation framework.
+
+\section{Dataset Analysis}
+
+\subsection{Data Collection and Expansion}
+
+The base dataset was the Kaggle Bangladesh Suicide Dataset \cite{ref5}, originally 760 records by 27 columns covering 2020. To enhance temporal coverage and analytical richness, 857 additional recent cases were collected manually from verified national and local Bangladeshi news outlets --- Prothom Alo, The Daily Star, Jugantor, Ittefaq, and several regional newspapers and online portals --- extending coverage to 2017--2025.
+
+To capture socio-economic and clinical dimensions absent in the original dataset, nine new attributes were introduced: \texttt{family\_members}, \texttt{position\_in\_siblings}, \texttt{marital\_status}, \texttt{duration\_of\_separation}, \texttt{profession\_description}, \texttt{workplace}, \texttt{financial\_condition}, \texttt{previous\_health\_condition}, and \texttt{previous\_suicide\_attempt}. After expansion the dataset contained 1,617 records and 36 columns; the analytical dataset used downstream contains 34 columns, after the ethical removals described next.
+
+\subsection{Removal of Irrelevant and Sensitive Columns}
+
+Two columns were permanently removed for ethical and analytical reasons: \texttt{full\_name} (personally identifiable) and \texttt{data\_source} (the news URL did not contribute to clustering).
+
+\subsection{Missing Value Analysis (Pre-Imputation)}
+
+Before any imputation, missingness was analysed per feature. As summarised in Table~\ref{tbl:missingness_groups}, features fell into four bands by missing rate.
+
+\begin{table}[H]
+\centering
+\caption[Feature groupings by missing-value rate]{Feature groupings by missing-value rate}
+\label{tbl:missingness_groups}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.396\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.754\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.851\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Group} & \textbf{Missing Range} & \textbf{Key Columns} \\ \hline
+1 & 77.61\% -- 96.17\% & duration\_\hspace{0pt}of\_\hspace{0pt}separation, position\_\hspace{0pt}in\_\hspace{0pt}siblings, previous\_\hspace{0pt}suicide\_\hspace{0pt}attempt, previous\_\hspace{0pt}health\_\hspace{0pt}condition, family\_\hspace{0pt}members \\ \hline
+2 & 45.51\% -- 53.06\% & Weather-related variables (temp\_\hspace{0pt}min, temp\_\hspace{0pt}max), latitude, longitude, profession\_\hspace{0pt}description, financial\_\hspace{0pt}condition, etc. \\ \hline
+3 & 23.93\% -- 37.90\% & workplace, marital\_\hspace{0pt}status \\ \hline
+4 & 0.43\% -- 18.92\% & age, gender, method, reason, hometown, etc. \\ \hline
+\end{tabularx}
+\end{table}
+
+All Group~1 variables (missing rate $>$70\%) were permanently excluded, since imputing such highly sparse features would introduce excessive uncertainty and noise \cite{ref40}.
+
+The missingness in this dataset is unlikely to be missing-completely-at-random (MCAR). Newspaper reporting foregrounds certain details (age, gender, hometown, method) and omits more sensitive or harder-to-verify information (prior mental-health history, family-conflict context, financial condition); whether a field is reported is therefore correlated both with observable features (the type of incident and the outlet) and with unobserved characteristics (such as family willingness to disclose). The most defensible assumption is that several fields are missing-at-random (MAR) at best and missing-not-at-random (MNAR) at worst. The imputation methods used in the next sections (MICE, KNN, MissForest) all rely on a MAR-style assumption to produce calibrated estimates, which bounds the strength of any subsequent interpretation: imputed values for the most sensitive fields should be read as conditional model expectations under MAR, not as recovered ground truth, and downstream cluster-level differences in such fields should be interpreted accordingly.
+
+\section{Detailed Preprocessing Pipeline}
+
+\subsection{Column Standardization \& Type Correction}
+
+The raw dataset had inconsistent naming conventions, spellings, and data types. Three corrections were applied: column names converted to snake\_case; spelling errors fixed (e.g., \texttt{maritual\_status} $\to$ \texttt{marital\_status}); and numerical values stored as strings cast to appropriate integer or float types.
+
+\subsection{Date \& Time Standardization}
+
+The \texttt{suicide\_date} column appeared in multiple formats (string, datetime, numeric) and the time column was categorical (morning, noon, evening, night). All dates were standardised to DD/MM/YYYY and categorical times mapped to representative hours (0--23). Five temporal features were then derived: \texttt{suicide\_day}, \texttt{suicide\_month}, \texttt{suicide\_year}, \texttt{suicide\_week}, and \texttt{suicide\_weekday}.
+
+\subsection{Categorical Value Harmonization (Manual + Semi-automated)}
+
+Categorical variables had extensive inconsistencies from spelling variations, synonyms, casing, and over-granular labels, with the number of unique categories ranging from 7 (gender) to 594 (hometown). A column-wise iterative cleaning process merged spelling variants and synonyms, grouped similar categories into semantically consistent classes, and simplified hometown to district-level labels to reduce sparsity and address ethical concerns. The process was repeated until no duplicate semantic categories remained; after harmonisation the highest-cardinality column (hometown) was reduced to 151 unique categories.
+
+\subsection{Conditional Filling Using External APIs}
+
+External data sources were integrated to reduce missingness without arbitrary imputation. The cleaned hometown field was passed to the Geopy geocoding service to fill missing latitude and longitude, reducing missingness from $\sim$53\% to 6.49\% for both. A \texttt{unix\_time} feature was then constructed from \texttt{suicide\_date} and the encoded time, reducing missingness from 52.38\% to 5\%. Weather attributes were filled via the Meteostat API keyed on \texttt{unix\_time}, latitude, and longitude, prioritising hourly data and falling back to daily aggregates when hourly were unavailable. Table~\ref{tbl:api_filling_results} reports the per-column reduction.
+
+\begin{table}[H]
+\centering
+\caption[Weather-related missingness before and after API filling]{Weather-related missingness before and after conditional API filling}
+\label{tbl:api_filling_results}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=1.182\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.891\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.885\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.042\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Column} & \textbf{Before} & \textbf{After} & \textbf{Status} \\ \hline
+temp\_\hspace{0pt}min & 53.06\% & 29.87\% & Reduced \\ \hline
+temp\_\hspace{0pt}max & 53.06\% & 29.56\% & Reduced \\ \hline
+air\_\hspace{0pt}pressure & 53.06\% & 30.43\% & Reduced \\ \hline
+air\_\hspace{0pt}humidity & 53.06\% & 53.06\% & No Change \\ \hline
+wind\_\hspace{0pt}speed & 52.99\% & 30.18\% & Reduced \\ \hline
+wind\_\hspace{0pt}deg & 53.06\% & 53.06\% & No Change \\ \hline
+\end{tabularx}
+\end{table}
+
+Values for \texttt{air\_humidity} and \texttt{wind\_deg} did not change because the API did not return data for those columns at the required date--location combinations, and no values were filled for \texttt{feels\_like}, \texttt{clouds\_sky}, \texttt{weather\_main}, or \texttt{weather\_description} for the same reason.
+
+\subsection{Feature Engineering \& Final Cleaning}
+
+Three final steps were applied before encoding: long free-text columns (\texttt{profession\_description}, \texttt{reason\_description}) were dropped; \texttt{suicide\_date} and \texttt{unix\_time} were removed after feature extraction; and the final feature set contained 29 columns (13 categorical, 16 numerical).
+
+\subsection{Encoding Strategy}
+
+Four encoding techniques converted categorical variables into numerical representations suitable for imputation and clustering, chosen by feature characteristics.
+
+\subsubsection{Ordinal Encoding}
+
+Variables with intrinsic order were encoded ordinally to preserve relative ordering: \texttt{age\_group}, \texttt{financial\_condition}, \texttt{weather\_main}, and \texttt{suicide\_weekday}. Mappings were manually defined from domain knowledge to ensure semantic correctness --- for example, the age groups were encoded as \{baby=0, child=1, teen=2, young=3, adult=4, middle-aged=5, old=6\}.
+
+\subsubsection{One-Hot Encoding}
+
+Low-cardinality nominal variables without inherent ordering were one-hot encoded, which converts each category into a separate binary indicator without imposing a spurious ordinal relationship \cite{ref41}; this was applied to \texttt{gender}, \texttt{workplace}, and \texttt{Religion}.
+
+\subsubsection{Frequency (Proportional) Encoding}
+
+High-cardinality categorical variables without ordinal structure were encoded using proportional frequency encoding: \texttt{profession\_group}, \texttt{hometown}, \texttt{reason}, \texttt{method}, \texttt{weather\_description}, and \texttt{marital\_status}. Applying one-hot encoding to these features would produce a highly sparse feature space and risk the curse of dimensionality --- a problem documented across the high-cardinality encoding literature \cite{ref42}. Proportional frequency encoding was chosen as a pragmatic project-specific compromise: it handles high cardinality efficiently, preserves the relative-frequency information that may carry signal in this dataset, and is fully unsupervised, which makes it directly applicable to the downstream clustering setting where the supervised target-based alternatives advocated by \cite{ref42} are unavailable.
+
+For a categorical feature $f$ and category $c$, the proportional frequency encoding value $\phi(c, f)$ is
+\begin{equation}\label{eq:frequency_encoding}
+\phi(c, f) \;=\; \frac{n_{c, f}}{N_f}
+\end{equation}
+where $n_{c, f}$ is the number of occurrences of category $c$ in feature $f$ and $N_f$ is the total number of non-missing observations in feature $f$. Encoded values were stored in new columns to keep the original categorical variables for interpretability and post-clustering analysis.
+
+\subsubsection{Numerical Features}
+
+Numerical variables were retained in their original integer or floating-point form. After frequency-encoding the ordinal categoricals and one-hot encoding the nominal ones (gender, workplace, religion), the MICE/KNN input matrix comprised 37 numerical columns; MissForest, which handles categoricals natively via label encoding, was instead supplied with a 29-column matrix. Both formats are fully numerical and ready for the respective imputation routine.
+
+\subsubsection{Label Encoding (Special Case)}
+
+For MissForest imputation, all columns were encoded with integer labels using scikit-learn's \texttt{LabelEncoder} to fit the tree-based estimator.
+
+\subsubsection{Decoding Preparation}
+
+Encoding mappings for all categorical variables were saved as JSON files for consistent post-clustering decoding, enabling interpretation, cluster profiling, and visualisation of real-world patterns.
+
+\section{Imputation Strategies}
+
+Missing values --- stemming from incomplete newspaper coverage --- were handled through multivariate imputation to retain sample size, reduce bias, and preserve the integrity of demographic (e.g., age, gender, profession\_group), spatiotemporal (latitude, longitude, suicide\_date), and environmental (temperature, weather\_main) features. Three established methods were selected to span distinct paradigms: parametric model-based MICE, non-parametric instance-based KNN, and ensemble tree-based MissForest. The multi-method design aligns with the consensus that no single imputation technique dominates across data types and missingness patterns.
+
+For each method, two predictor-selection strategies were applied, giving six variants. Parameters were standardised where possible for fair comparison ($k = 5$ for KNN; MissForest iterated to the Stekhoven $\Delta_F$-stopping criterion). Implementation used scikit-learn (\texttt{KNNImputer}; a custom per-variable BayesianRidge MICE-style imputer described in \S3.4.1) plus a MissForest-equivalent built on scikit-learn random-forest estimators. Post-imputation residual missingness was $\leq$0.25\% across all variants, yielding effectively complete datasets.
+
+\subsection{Common Functionalities of All Three Methods}
+
+MICE, KNN, and MissForest share a common operational skeleton: a predictor-selection step that decides which columns inform the imputation, a set of value constraints that enforce feasibility of imputed values, and a generalised iterative workflow that drives the fitting.
+
+\subsubsection{Predictor Selection Strategies}
+
+Two strategies were used, covering both selective and inclusive scenarios.
+
+\textbf{Correlation-based (context-aware) selection.} For each target column, pairwise Pearson correlation coefficients were computed against all other columns using pandas' \texttt{corr()}; self-correlations were excluded, and only non-zero correlations ($|r| > 0$) were retained, sorted by descending absolute value. The resulting ranking served as a heuristic predictor-selection signal rather than a formally calibrated statistical test. Many post-encoding columns are not strictly continuous --- one-hot indicators are 0/1 variables, frequency-encoded fields lie on the unit interval, and ordinal codes are integer-valued --- so Pearson correlation on them measures linear co-occurrence rather than satisfying its standard bivariate-normal assumptions. The magnitudes are therefore treated as a pragmatic ranking signal (``which columns tend to move together''), not as estimates of an underlying population correlation; only the rank, not the magnitude, drives predictor selection. The heuristic is adopted deliberately as a lightweight, transparent alternative to more sophisticated mixed-type association measures (e.g., Cram\'er's V, correlation ratio) and is recorded as a methodological design choice rather than as a rigorous statistical commitment.
+
+\textbf{All-available (no-context) selection.} This baseline used all columns in the dataset (except the target itself) as predictors, maximising available information at the cost of potentially including weakly related or redundant variables.
+
+\subsubsection{Constraints}
+
+To prevent unrealistic imputed values (e.g., negative temperatures or latitudes outside Bangladesh), post-prediction constraints were applied to selected numerical, temporal, and encoded columns. Constraints came from domain knowledge, geographic facts, historical weather records, and logical limits --- examples include age (0--100 years), latitude and longitude (Bangladesh-specific geographic bounds), temperature-related columns (\texttt{feels\_like}, \texttt{temp\_min}, \texttt{temp\_max}: plausible regional range, originally specified in Kelvin), \texttt{wind\_deg} (0--360$^{\circ}$), and encoded ordinal columns (e.g., \texttt{suicide\_weekday\_encoded}: 0--6). Values were rounded for integers and clipped to bounds.
+
+\paragraph{Note on temperature unit consistency.} The temperature constraint above was specified in Kelvin because the original Kaggle subset stored \texttt{feels\_like}, \texttt{temp\_min}, and \texttt{temp\_max} on a Kelvin scale, whereas the manually collected 2017--2025 cases were filled via Meteostat on a Celsius scale and were not converted to Kelvin before imputation. The two source cohorts therefore coexist in the same columns under different units, and the Kelvin-range constraint does not enforce a consistent physical range across the combined dataset. The inconsistency was identified after the 32-pipeline experiment had been executed, and re-running the entire pipeline was not feasible within the project timeline. The original results are retained, and the inconsistency is flagged explicitly here, in \S\ref{sec:source_cohort_caveat}, and as Limitation~\ref{lim:temp_units} in \S6.4, so that environment-related interpretations of the cluster profiles in Chapter~4 are read with appropriate caution.
+
+\subsubsection{Functions Overview (Generalized Workflow)}
+
+Custom Python functions processed the imputation column-by-column, taking as input the target \texttt{column\_name}, DataFrame \texttt{df}, predictor-selection dictionary (context-aware or no-context), and constraints dictionary. The common workflow was:
+
+\begin{enumerate}[leftmargin=2em,labelindent=0pt,itemsep=0.4em]
+  \item Identify rows with missing values in the target column.
+  \item For each missing row, dynamically select usable predictors (non-null in that row).
+  \item If no usable predictors exist, skip the row.
+  \item Prepare training data from complete cases (rows where target and selected predictors are non-null).
+  \item Train the appropriate model and predict the missing value (missing predictors temporarily filled with column mean for numerics or mode for categoricals).
+  \item Apply rounding (for integers) and clip to constraint bounds.
+  \item Update the DataFrame with the imputed value.
+\end{enumerate}
+
+This shared structure ensured consistency across methods; differences arose only from model type and encoding compatibility. Figure~\ref{fig:unified_imputation_workflow_fo} visualises the workflow, with branches for context-aware and no-context predictor selection.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{imputation.png}
+  \caption[Unified imputation workflow for MICE, KNN, and MissForest]{Unified imputation workflow for MICE, KNN, and MissForest (context-aware vs. no-context variants).}
+  \label{fig:unified_imputation_workflow_fo}
+\end{figure}
+
+\subsection{Method-Specific Adaptations}
+
+Within the shared skeleton, each method differs in its estimator and in how it accommodates the dataset's mixed numerical and categorical columns.
+
+\subsubsection{Multiple Imputation by Chained Equations (MICE)}
+
+MICE is a flexible iterative method that models each variable conditionally on the others using chained regression equations \cite{ref10}; it suits mixed-type data under MAR assumptions. Rather than calling scikit-learn's \texttt{IterativeImputer} (which sweeps all columns simultaneously and produces a single imputation per cell), a custom per-variable BayesianRidge regressor was implemented to give explicit control over which predictors are used for each target column under the two predictor strategies described below. For each column with missing entries, a BayesianRidge model was fit on the rows where that column was observed, using the remaining columns (full predictor set in the no-context regime, correlation-filtered subset in the context-aware regime), and then used to predict the missing values; predictor cells that were themselves missing at prediction time were filled with the column mean. This is a single-imputation procedure: it produces one filled value per missing cell rather than the multiple imputations of Rubin's original MICE formulation, an explicit simplification motivated by the downstream clustering pipeline, which consumes a single completed matrix.
+
+\subsubsection{K-Nearest Neighbours (KNN)}
+
+KNN is a non-parametric instance-based method that fills missing values by averaging --- or taking the mode for categoricals --- from the $k$ most similar complete observations \cite{ref11}. The implementation used scikit-learn's \texttt{KNNImputer} ($k=5$, uniform weights) and supported mixed encodings under both predictor strategies.
+
+\subsubsection{MissForest}
+
+MissForest is a non-parametric iterative method that uses random forests to impute missing values, capturing non-linear interactions without distributional assumptions \cite{ref12}. It was applied with 100 trees per forest (\texttt{n\_estimators=100}) and a fixed random state for reproducibility. Label encoding was preferred for categoricals to optimise tree-based performance (unlike the mixed encoding used for MICE/KNN), and imputed categorical values were rounded and clipped to valid integer ranges post-imputation to match the original encoding.
+
+\subsection{Post-Imputation Processing}
+
+After imputation, two post-processing steps ensured categorical integrity, identically applied across all variants. \textit{One-hot encoded groups} (e.g., gender: female/male/third gender; workplace: rural/semi-urban/urban; religion: buddhist/christian/hindu/indigenous/muslim) sometimes produced fractional or multiple active values; these were corrected by setting the column with the highest imputed value to 1.0 and all others in the group to 0.0 per row. \textit{Ordinal columns} (e.g., \texttt{suicide\_weekday\_encoded}: 0--6; \texttt{age\_group\_encoded}: 0--6; \texttt{financial\_condition\_encoded}: 0--4; \texttt{weather\_main\_encoded}: 0--7) were rounded from floats to the nearest integers and clipped to valid bounds to restore semantic meaning.
+
+\subsection{Summary of Imputation Variants}
+
+Table~\ref{tbl:imputation_variants} summarises the six variants, including abbreviations (initial missingness varied by column; post-imputation $\leq$0.25\% for all variants).
+
+\begin{table}[H]
+\centering
+\caption[Summary of the six imputation variants]{Summary of the six imputation variants (three methods $\times$ two predictor strategies)}
+\label{tbl:imputation_variants}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.769\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.074\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.857\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.300\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Imputation Method} & \textbf{Predictor Strategy} & \textbf{Abbreviation Used} & \textbf{Notes On Implementation} \\ \hline
+MICE & Correlation-based context & mice\_\hspace{0pt}context & BayesianRidge, mixed encoding \\ \hline
+MICE & All available columns & mice\_\hspace{0pt}no\_\hspace{0pt}context & BayesianRidge, mixed encoding \\ \hline
+KNN & Correlation-based context & knn\_\hspace{0pt}context & KNNImputer, mixed encoding \\ \hline
+KNN & All available columns & knn\_\hspace{0pt}no\_\hspace{0pt}context & KNNImputer, mixed encoding \\ \hline
+MissForest & Correlation-based context & rf\_\hspace{0pt}context & RandomForest, label encoding + rounding \\ \hline
+MissForest & All available columns & rf\_\hspace{0pt}no\_\hspace{0pt}context & RandomForest, label encoding + rounding \\ \hline
+\end{tabularx}
+\end{table}
+
+\section{Clustering Algorithms}
+
+\subsection{Dataset Preparation for Clustering}
+
+The clustering stage operated on 8 datasets to enable a comprehensive comparison between imputed and non-imputed versions. The 6 imputed datasets came from the three imputation methods under two predictor regimes. MICE variants retained 1{,}613 rows each (four rows whose available predictors were too sparse for a stable BayesianRidge fit were dropped), while KNN and MissForest variants kept all 1{,}617 rows. MICE and KNN variants used 37 columns (one-hot expanded categoricals) and MissForest used 29 columns (label-encoded categoricals, which the tree-based estimator can handle natively).
+
+For baseline comparison, a non-imputed version (\texttt{df\_encoded}) was created by applying manual imputation, logical fillings, and encoding to the original data, leaving varying missingness across columns; the missing-data report showed no columns above 53.06\%, but significant missingness in groups: $>$45.51\% to $\leq$53.06\% (e.g., \texttt{feels\_like}, \texttt{air\_humidity} at 53.06\%), $>$23.93\% to $\leq$37.90\% (e.g., \texttt{workplace\_encoded} at 37.90\%), and $\leq$18.92\% (e.g., \texttt{profession\_group\_encoded} at 18.92\%).
+
+To create complete baseline datasets, rows with any missing values were dropped and three variants formed by missingness threshold: \texttt{df\_encoded\_20} (853 rows, 22 columns, $\leq$18.92\% missing); \texttt{df\_encoded\_40} (403 rows, 30 columns, $\leq$37.90\% missing); and \texttt{df\_encoded\_50} (57 rows, 37 columns, $\leq$53.06\% missing). The 57-row \texttt{df\_encoded\_50} was excluded as too small for meaningful clustering, leaving 8 datasets in total (the 6 imputed variants plus \texttt{df\_encoded\_20} and \texttt{df\_encoded\_40}), compiled into a collection for batch processing.
+
+\subsection{Overview and Rationale}
+
+Clustering was applied as an unsupervised technique to discover hidden patterns in the suicide dataset, where no predefined target variable existed. The choice of clustering algorithm materially affects what structure is recovered, and clustering surveys consistently note that no single algorithm dominates when the underlying cluster geometry is unknown a priori --- spherical, elongated, density-defined, and manifold-shaped clusters each call for different inductive biases \cite{ref49}. The standard response is to run several algorithms drawn from different paradigms and let the data adjudicate. Four algorithms spanning the major paradigms were therefore selected: centroid-based (K-Means \cite{ref13}), hierarchical (Agglomerative Clustering \cite{ref14}), density-based (DBSCAN \cite{ref15}), and graph-based (Spectral Clustering \cite{ref16}). Each makes a different geometric assumption --- K-Means assumes convex centroid-shaped clusters, Agglomerative builds nested partitions through linkage merges, DBSCAN identifies dense regions and explicitly tags low-density points as noise, and Spectral relaxes convexity by embedding via the graph Laplacian. Running all four on the same data stress-tests whether any recovered pattern is an artefact of one particular assumption or a stable property of the underlying records, and these four paradigms are also the most widely used in prior unsupervised studies of suicide and mental-health profiles \cite{ref34, ref35, ref36, ref37}, which makes the clusters reported in Chapter~4 directly comparable with that literature.
+
+Running 4 algorithms across 8 input datasets gives 32 combinations, ranked under a combined scoring system to identify the best pipeline. The design lets us assess how imputation strategy influences cluster quality while surfacing candidate demographic or environmental groupings for further exploratory analysis, subject to the limitations discussed in Chapters~4 and~6.
+
+\subsection{Common Preprocessing and Evaluation}
+
+All clustering methods shared a preprocessing and evaluation skeleton; parameters were tuned dynamically via grid search and fine-tuning.
+
+\subsubsection{Preprocessing Pipeline}
+
+Numerical columns were scaled with \texttt{StandardScaler} (mean 0, std 1) so each feature contributed equally to distance metrics, and PCA was then applied to compress dimensionality while retaining significant variance (99\% variance for K-Means; fixed component counts of 10 for Agglomerative and DBSCAN, 20 for Spectral) --- improving efficiency and reducing noise without losing key patterns.
+
+\subsubsection{Optimal Cluster Number Determination}
+
+The optimal number of clusters $k$ was determined via silhouette analysis (cohesion/separation) and the elbow method (inertia vs. $k$). Tested ranges varied by method (2--20 for K-Means, 2--11 for Agglomerative, 2--6 for Spectral) and were applied per dataset to adapt to varying input structures.
+
+\subsubsection{Hyperparameter Tuning Strategy}
+
+Hyperparameters were optimised via grid search followed by fine-tuning, with 1{,}000-row subsampling for efficiency on large datasets. Performance during tuning was assessed by silhouette (higher better), Calinski--Harabasz (higher better), and Davies--Bouldin (lower better), combined into method-specific composite scores. Parallel processing was used where applicable.
+
+\subsection{Method-Specific Adaptations}
+
+Each of the four algorithms shares the preprocessing and tuning skeleton above but differs in core assumptions about cluster shape, density, and connectivity.
+
+\subsubsection{K-Means (Centroid-based)}
+
+K-Means partitions data into $k$ clusters by minimising within-cluster variance around centroids \cite{ref13}; it is fast, scalable, and widely used but assumes spherical, equally sized clusters. It was retained as the centroid-based reference because it is the most widely used clustering method in prior unsupervised studies of suicide and mental-health profiles \cite{ref34, ref35, ref36}, making the present results directly comparable with that literature, and because it provides an inexpensive baseline against which the more flexible algorithms can be evaluated.
+
+The implementation used dynamic hyperparameter tuning via grid search and fine-tuning. Key search spaces: $n\_\mathrm{clusters} \in [2, 20]$, init $\in \{\text{k-means++}, \text{random}\}$, $n\_\mathrm{init} \in \{10, 20, 50\}$, $\mathrm{max\_iter} \in \{300, 500\}$, with preprocessing via StandardScaler and optional PCA (99\% variance). Grid search evaluated all combinations using silhouette ($\text{sil}$, higher better) and Davies--Bouldin ($db$, lower better), selecting the best parameters via
+\begin{equation}\label{eq:tuning_score_kmeans}
+S_{\mathrm{KM}} \;=\; \frac{\text{sil}}{db + 10^{-12}}
+\end{equation}
+which favours configurations that are both internally cohesive and well separated. Fine-tuning refined $n\_\mathrm{clusters}$ around the best value ($\pm 2$, minimum 2) using \eqnref{eq:tuning_score_kmeans}, updating only if performance improved. Final labels were saved as \texttt{kmeans\_cluster}. The process was repeated independently for all 8 datasets.
+
+\subsubsection{Agglomerative Clustering (Hierarchical)}
+
+Agglomerative Clustering builds a hierarchy by merging the closest clusters bottom-up using linkage criteria \cite{ref14}; it handles arbitrary shapes, provides dendrograms for visualisation, and does not require a predefined cluster count. It was selected because the true number of subgroups in newspaper-reported suicide records is unknown a priori, and hierarchical merging produces a full dendrogram from which any partition level can be inspected without pre-committing to a fixed $k$; it has also been used productively in prior suicide and mental-health profiling work to recover nested sub-groupings of cases that flat partitions miss \cite{ref34, ref36}.
+
+Implementation used dynamic hyperparameter tuning with sampling for efficiency: $n\_\mathrm{clusters} \in [2, 10]$, linkage $\in \{\text{ward}, \text{complete}, \text{average}\}$, metric $\in \{\text{euclidean}, \text{manhattan}, \text{cosine}\}$, with StandardScaler and PCA ($n\_\mathrm{components}=10$). Tuning sampled 1{,}000 rows and evaluated combinations using silhouette, Calinski--Harabasz ($ch$), and Davies--Bouldin ($db$). To combine the three indices on a common scale, $ch$ and $db$ were monotonically normalised into $[0, 1]$ as $\text{ch}_{\mathrm{n}} = ch/(ch + 10^{-6})$ and $\text{db}_{\mathrm{n}} = 1/(1 + db)$ respectively, and averaged with silhouette:
+\begin{equation}\label{eq:tuning_score_three_metric}
+S_{3} \;=\; \frac{\text{sil} + \text{ch}_{\mathrm{n}} + \text{db}_{\mathrm{n}}}{3}.
+\end{equation}
+The best parameter set maximised \eqnref{eq:tuning_score_three_metric}; final labels were saved as \texttt{agg\_cluster}. The process was repeated for all 8 datasets.
+
+\subsubsection{DBSCAN (Density-based)}
+
+DBSCAN groups points in high-density regions and marks low-density points as noise, identifying clusters of arbitrary shape without requiring a predefined cluster count \cite{ref15}; it is robust to outliers but sensitive to parameter choices. It was included specifically because newspaper-reported suicide data contains atypical cases (rare causes, extreme geographic or demographic combinations) alongside more common patterns: DBSCAN's explicit noise label ($-1$) sets such outliers aside rather than forcing them into the nearest cluster \cite{ref15}, avoiding a documented failure mode of centroid-based methods on heterogeneous social data \cite{ref49}.
+
+Implementation used dynamic hyperparameter tuning with sampling: $\varepsilon \in [0.3, 2.0]$ in 0.1 increments, $\mathrm{min\_samples} \in \{3, 5, 8, 10, 15\}$, metric $\in \{\text{euclidean}, \text{manhattan}, \text{cosine}\}$, with StandardScaler and PCA ($n\_\mathrm{components}=10$). The same three-metric combined score $S_3$ from \eqnref{eq:tuning_score_three_metric} drove the search. Final labels (noise as $-1$) were saved as \texttt{dbscan\_cluster}. The process was repeated for all 8 datasets.
+
+\subsubsection{Spectral Clustering (Graph-based)}
+
+Spectral Clustering constructs a similarity graph and uses the eigenvalues of the graph Laplacian to partition data into non-linear clusters \cite{ref16}; it excels at capturing complex, non-convex boundaries. It was included as a deliberate complement to the centroid-based and hierarchical methods: if the true sub-groupings lie along a curved manifold rather than in compact balls --- a structure that K-Means and Ward-linkage Agglomerative cannot detect by construction --- Spectral is the algorithm best positioned to recover them \cite{ref16, ref49}.
+
+Implementation used dynamic hyperparameter tuning with optional subsampling: $n\_\mathrm{clusters} \in [2, 6]$, affinity $\in \{\text{nearest\_neighbors}\}$, $\mathrm{assign\_labels} \in \{\text{kmeans}\}$, with StandardScaler and PCA ($n\_\mathrm{components}=20$). Combinations were evaluated using silhouette, Calinski--Harabasz, and Davies--Bouldin, combined into the Spectral-specific score
+\begin{equation}\label{eq:tuning_score_spectral}
+S_{\mathrm{SP}} \;=\; \text{sil} + \log\!\bigl(ch + 1\bigr) - db,
+\end{equation}
+in which the unbounded $ch$ is dampened logarithmically so that no single term dominates. The best parameter set maximised \eqnref{eq:tuning_score_spectral}; final labels were saved as \texttt{spc\_cluster}. The process was repeated for all 8 datasets.
+
+\subsection{Overall Clustering Pipeline}
+
+Each of the 8 datasets was processed uniformly: input DataFrame $\to$ standardisation $\to$ PCA dimensionality reduction $\to$ optional 1{,}000-row subsampling for tuning (the final model was always refit on the full preprocessed data) $\to$ algorithm-specific hyperparameter search with a composite score $\to$ fit of the best model and saving of the cluster-labels column (\texttt{kmeans\_cluster}, \texttt{agg\_cluster}, \texttt{dbscan\_cluster}, \texttt{spc\_cluster}). The outer loop repeated until all $8 \times 4 = 32$ pipelines were complete. Figure~\ref{fig:clustering_workflow} summarises the flow, mirroring the unified imputation workflow (Figure~\ref{fig:unified_imputation_workflow_fo}).
+
+\begin{figure}[tp]
+  \centering
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{cluster_flow.png}
+  \caption[Unified clustering workflow across the four algorithms]{Unified clustering workflow across the four algorithms (K-Means, Agglomerative, DBSCAN, Spectral). Each of the 8 input datasets is processed independently --- standardisation, PCA, an optional 1{,}000-row subsample for tuning, algorithm-specific search and composite scoring --- and the outer loop covers all 32 pipelines (8 datasets $\times$ 4 algorithms) before composite evaluation.}
+  \label{fig:clustering_workflow}
+\end{figure}
+
+\subsection{Summary of Clustering Combinations}
+
+Table~\ref{tbl:clustering_combinations_32} summarises the 32 combinations (8 inputs $\times$ 4 methods), including the abbreviation used throughout the report and the imputation method that produced each input dataset.
+
+\begin{table}[!ht]
+\centering
+\caption[Summary of all 32 clustering combinations]{Summary of all 32 clustering combinations (8 input datasets $\times$ 4 algorithms)}
+\label{tbl:clustering_combinations_32}
+\renewcommand{\arraystretch}{1.0}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Input Dataset} & \textbf{Clustering Method} & \textbf{Abbreviation} & \textbf{Imputation Method} \\ \hline
+df\_encoded\_20 (853 rows, 22 cols) & K-Means & kmeans\_encoded\_20 & Baseline, no imputation \\ \hline
+df\_encoded\_20 & Agglomerative & agg\_encoded\_20 & Baseline, no imputation \\ \hline
+df\_encoded\_20 & DBSCAN & dbscan\_encoded\_20 & Baseline, no imputation \\ \hline
+df\_encoded\_20 & SPC (Spectral) & spc\_encoded\_20 & Baseline, no imputation \\ \hline
+df\_encoded\_40 (403 rows, 30 cols) & K-Means & kmeans\_encoded\_40 & Baseline, no imputation \\ \hline
+df\_encoded\_40 & Agglomerative & agg\_encoded\_40 & Baseline, no imputation \\ \hline
+df\_encoded\_40 & DBSCAN & dbscan\_encoded\_40 & Baseline, no imputation \\ \hline
+df\_encoded\_40 & SPC (Spectral) & spc\_encoded\_40 & Baseline, no imputation \\ \hline
+df\_mice\_context & K-Means & kmeans\_mice\_context & Imputed with MICE \\ \hline
+df\_mice\_context & Agglomerative & agg\_mice\_context & Imputed with MICE \\ \hline
+df\_mice\_context & DBSCAN & dbscan\_mice\_context & Imputed with MICE \\ \hline
+df\_mice\_context & SPC (Spectral) & spc\_mice\_context & Imputed with MICE \\ \hline
+df\_mice\_no\_context & K-Means & kmeans\_mice\_no\_context & Imputed with MICE \\ \hline
+df\_mice\_no\_context & Agglomerative & agg\_mice\_no\_context & Imputed with MICE \\ \hline
+df\_mice\_no\_context & DBSCAN & dbscan\_mice\_no\_context & Imputed with MICE \\ \hline
+df\_mice\_no\_context & SPC (Spectral) & spc\_mice\_no\_context & Imputed with MICE \\ \hline
+df\_knn\_context & K-Means & kmeans\_knn\_context & Imputed with KNN \\ \hline
+df\_knn\_context & Agglomerative & agg\_knn\_context & Imputed with KNN \\ \hline
+df\_knn\_context & DBSCAN & dbscan\_knn\_context & Imputed with KNN \\ \hline
+df\_knn\_context & SPC (Spectral) & spc\_knn\_context & Imputed with KNN \\ \hline
+df\_knn\_no\_context & K-Means & kmeans\_knn\_no\_context & Imputed with KNN \\ \hline
+df\_knn\_no\_context & Agglomerative & agg\_knn\_no\_context & Imputed with KNN \\ \hline
+df\_knn\_no\_context & DBSCAN & dbscan\_knn\_no\_context & Imputed with KNN \\ \hline
+df\_knn\_no\_context & SPC (Spectral) & spc\_knn\_no\_context & Imputed with KNN \\ \hline
+df\_rf\_context & K-Means & kmeans\_rf\_context & Imputed with MissForest \\ \hline
+df\_rf\_context & Agglomerative & agg\_rf\_context & Imputed with MissForest \\ \hline
+df\_rf\_context & DBSCAN & dbscan\_rf\_context & Imputed with MissForest \\ \hline
+df\_rf\_context & SPC (Spectral) & spc\_rf\_context & Imputed with MissForest \\ \hline
+df\_rf\_no\_context & K-Means & kmeans\_rf\_no\_context & Imputed with MissForest \\ \hline
+df\_rf\_no\_context & Agglomerative & agg\_rf\_no\_context & Imputed with MissForest \\ \hline
+df\_rf\_no\_context & DBSCAN & dbscan\_rf\_no\_context & Imputed with MissForest \\ \hline
+df\_rf\_no\_context & SPC (Spectral) & spc\_rf\_no\_context & Imputed with MissForest \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Computational Considerations}\label{sec:computational_considerations}
+
+The 32-pipeline grid combines methods whose computational cost differs by several orders of magnitude. This subsection documents the standard asymptotic complexity of each component to explain why some combinations were practical to grid-search aggressively while others were tuning-bound. Textbook complexities are reported; per-pipeline wall-clock measurement was not instrumented in the study, and this is acknowledged openly rather than substituted with estimated runtimes.
+
+Let $n$ denote the number of records ($n = 1{,}617$ for MissForest and KNN variants, $n = 1{,}613$ for MICE variants, $n \in \{403, 853\}$ for the encoded baselines), $p$ the number of features after encoding ($p = 37$ for MICE/KNN, $p = 29$ for MissForest), $k$ the number of clusters, $T$ the number of trees in MissForest (100), and $I$ the number of inner iterations (set to 1 in the custom MICE implementation; MissForest is iterated until the Stekhoven $\Delta_F$-stopping criterion ceases to decrease).
+
+\textbf{Imputation methods.} The custom MICE-style imputer (per-variable BayesianRidge) is approximately $O(p \cdot n p^2)$ for the single pass, dominated by the per-variable regression fits; with $p = 37$ this is the cheapest of the three in practice. KNN imputation (\texttt{KNNImputer}, $k=5$) is $O(n^2 p)$ for the pairwise distance computation, which dominates runtime at $n = 1{,}617$. MissForest fits a separate random forest per partially observed variable per iteration, giving an approximate $O(I \cdot p \cdot T \cdot n p \log n)$ cost; with $T = 100$ trees and $p = 29$ variables iterated until convergence, it is the dominant runtime cost in the imputation stage --- already noted in \S5.5 and \S5.6, and the reason imputation hyperparameters were not swept.
+
+\textbf{Clustering algorithms.} For each input dataset, the cost of fitting one configuration is: K-Means $O(n k d I_{\mathrm{km}})$, where $d$ is the post-PCA dimensionality and $I_{\mathrm{km}}$ the number of Lloyd iterations --- the cheapest of the four, with the dominant cost in the grid search over $k \in [2, 20]$, init methods, $n\_\mathrm{init}$, and $\mathrm{max\_iter}$ (\S3.5.3). Agglomerative Clustering: $O(n^2 \log n)$ time and $O(n^2)$ memory for the pairwise linkage matrix; at $n \approx 1{,}600$ this is comfortable within Colab free-tier RAM but binding above $n \approx 20{,}000$. DBSCAN: $O(n \log n)$ with a KD-tree neighbour query in low to moderate dimensionality (the scikit-learn default), degrading to $O(n^2)$ when the metric or dimensionality forces a brute-force neighbour search. Spectral Clustering: $O(n^3)$ for the eigendecomposition of the affinity matrix, plus $O(n^2)$ memory --- the most expensive of the four, the principal reason Spectral was not grid-searched as aggressively as K-Means, and tractable on Colab at $n \approx 1{,}600$ but binding above $n \approx 5{,}000$ on free-tier hardware.
+
+The MissForest variants and the Spectral Clustering runs jointly account for most of the wall-clock cost of the 32-pipeline grid; these costs are the reason imputation hyperparameters were not searched and Spectral was not tuned with the same density as K-Means. The smaller baseline datasets ($n \in \{403, 853\}$) were inexpensive enough to be grid-searched freely. Per-pipeline runtimes were not recorded in the implementation; recording them is recommended for any subsequent replication that wishes to report compute budgets quantitatively (see \S6.5, Future Work).
+
+\section{Evaluation Metrics and Combined Score Ranking}\label{sec:evaluation_metrics_combined}
+
+\subsection{Overview of Evaluation Approach}
+
+To compare the quality of the 32 clustering combinations consistently, a project-specific evaluation framework was developed. No single index fully captures clustering quality, since different indices emphasise different aspects --- cohesion, separation, compactness --- so five established internal validation metrics were selected and supplemented by an additional balance penalty term designed to demote configurations that achieve high geometric scores while producing near-degenerate cluster assignments (one mega-cluster plus singletons, or DBSCAN solutions in which the bulk of points are flagged as noise). The balance term is a pragmatic, study-specific scoring component, not a proposed general-purpose clustering metric. The framework aggregates these metrics into a composite ranking score, penalising cases with high geometric quality but poor interpretability, and was applied uniformly to all 32 cases with NaNs handled gracefully.
+
+\subsection{Standard Clustering Validation Metrics}
+
+Five widely used metrics were employed to evaluate geometric and structural aspects of the clusters. Each was computed for the full dataset (excluding noise labels of $-1$ in DBSCAN cases, where a mask focused the computation on clustered points).
+
+\paragraph{Silhouette Score \cite{ref17}.} Measures how similar a point is to its own cluster compared to other clusters, ranging from $-1$ (poor) to $1$ (excellent):
+\begin{equation}\label{eq:silhouette}
+s(i) \;=\; \frac{b(i) - a(i)}{\max\bigl(a(i),\, b(i)\bigr)}
+\end{equation}
+where $a(i)$ is the average distance from $i$ to other points in its cluster and $b(i)$ is the minimum average distance from $i$ to points in another cluster. The overall score is the mean $s(i)$ across all points; higher is better.
+
+\paragraph{Calinski--Harabasz Index (Variance Ratio Criterion) \cite{ref18}.} The ratio of between-cluster to within-cluster dispersion:
+\begin{equation}\label{eq:calinski_harabasz}
+CH \;=\; \frac{B/(K-1)}{W/(n-K)}
+\end{equation}
+where $B$ is the between-cluster sum of squares, $W$ the within-cluster sum, $K$ the number of clusters, and $n$ the number of points. Higher indicates compact, well-separated clusters.
+
+\paragraph{Davies--Bouldin Index \cite{ref19}.} The average similarity between each cluster and its most similar neighbour:
+\begin{equation}\label{eq:davies_bouldin}
+DB \;=\; \frac{1}{K} \sum_{i=1}^{K} \max_{j \neq i} \left( \frac{s_i + s_j}{d_{ij}} \right)
+\end{equation}
+where $s_i$ is the average intra-cluster distance in cluster $i$ and $d_{ij}$ the distance between centroids of $i$ and $j$. Lower is better; in code it was inverted as $db_{\mathrm{inv}} = 1/(1 + db)$ to align with higher-better composites.
+
+\paragraph{Dunn Index \cite{ref20}.} Compactness (maximum intra-cluster distance) against separation (minimum inter-cluster distance):
+\begin{equation}\label{eq:dunn}
+D \;=\; \frac{\min_{i \neq j} d(c_i, c_j)}{\max_{k} \delta(c_k)}
+\end{equation}
+where $d(c_i, c_j)$ is the minimum distance between points in clusters $i$ and $j$ and $\delta(c_k)$ the maximum within $k$. Higher is better.
+
+\paragraph{Xie--Beni Index \cite{ref21}.} Compactness relative to separation, originally formulated for fuzzy partitioning; the crisp form is used here:
+\begin{equation}\label{eq:xie_beni}
+XB \;=\; \frac{\displaystyle \sum_{k=1}^{K} \sum_{x_i \in C_k} \|x_i - c_k\|^2}{\displaystyle n \cdot \min_{i \neq j} \|c_i - c_j\|^2}
+\end{equation}
+where $C_k$ is the set of points assigned to cluster $k$ and $c_k$ are centroids. Lower is better; inverted as $xb_{\mathrm{inv}} = 1/(1 + xb)$ for higher-better composites.
+
+These metrics were chosen for their complementary strengths in assessing geometric validity, though they do not penalise size imbalance or excessive noise --- the gap that the next subsection addresses.
+
+\subsection{Study-Specific Balance Penalty Term}
+
+Standard internal validation metrics do not penalise cluster-size imbalance, so they assign high scores to configurations that are geometrically tight but structurally near-degenerate (one large cluster and many singletons, or DBSCAN solutions in which 99\% of points are labelled noise). To prevent such configurations from dominating the ranking, a balance penalty term was added; it rewards reasonably even point distribution and penalises over-segmentation and high noise rates. This is a study-specific scoring choice tailored to the imbalances commonly encountered in newspaper-derived social data, not a proposed general-purpose clustering metric.
+
+Let $L$ be the array of cluster labels (excluding noise/$-1$ for DBSCAN), $K$ the number of unique clusters ($\geq 2$, else score $= 0$), $c_k$ the size of cluster $k$, $n = \sum c_k$, and $p_k = c_k / n$ the proportions. The base balance (evenness) is
+\begin{equation}\label{eq:balance_base}
+\text{base} \;=\; 1 \;-\; \sqrt{\frac{1}{K} \sum_{k=1}^{K} \left( p_k - \frac{1}{K} \right)^{\!2}}
+\end{equation}
+which is 1 for perfectly equal sizes and decreases with imbalance. The full balance term applies a $1/\sqrt{K}$ penalty for excessive cluster counts:
+\begin{equation}\label{eq:balance}
+\text{balance} \;=\; \text{base} \,\times\, \frac{1}{\sqrt{K}}
+\end{equation}
+The result ranges roughly 0--1, with higher values for balanced, moderately segmented clusters. In practice, the balance term prevents imbalanced clusters from absorbing rare or smaller subgroups (specific professions, hometowns) into a dominant mega-cluster or labelling them as noise, which would weaken any subsequent profiling. The term complements rather than replaces the standard geometric indices and is offered as a project-specific composite-scoring choice for highly imbalanced, noise-prone social datasets, not as a general-purpose contribution to clustering theory.
+
+\subsection{Composite Scoring and Ranking Framework}
+
+To integrate the six metrics into a single ranking, a weighted rank-based aggregation was used. The approach handles differing scales, directions (higher/lower better), and NaN cases, while prioritising interpretability through a high weight on the balance metric.
+
+For each of the 32 cases, metrics were computed and ranked descending per metric (higher-better for silhouette, Calinski--Harabasz, Dunn, balance, and the inverted Davies--Bouldin/Xie--Beni; NaNs ranked last). Points were assigned as $n - r$, where $n = 32$ and $r$ is the rank position (top $=$ 0; NaN $= 0$ points). The composite score for a case was
+\begin{equation}\label{eq:composite_score}
+\text{score} \;=\; \sum_{m=1}^{6} \omega_m \times (n - r_m)
+\end{equation}
+where $\omega_m$ is the weight of metric $m$ and $r_m \in \{0, 1, \ldots, n-1\}$ its zero-indexed rank (best $= 0$); NaN values contribute 0 points directly, bypassing \eqnref{eq:composite_score}. Cases were sorted by descending score for the final ranking.
+
+Weights were selected empirically. Several combinations were tested, and the resulting top-ranked clusters were manually inspected for interpretability, noise levels, size balance, and logical distinguishability. The final weights (Table~\ref{tbl:weights_for_composite_score}) produced the most meaningful, well-distributed, low-noise clusters for exploratory subgroup analysis.
+
+\begin{table}[H]
+\centering
+\caption[Weights for composite score]{Weights for composite score}
+\label{tbl:weights_for_composite_score}
+\renewcommand{\arraystretch}{1.0}
+\small
+\begin{tabularx}{\textwidth}{|>{\hsize=0.877\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=0.547\hsize\linewidth=\hsize\raggedright\arraybackslash}X|>{\hsize=1.576\hsize\linewidth=\hsize\raggedright\arraybackslash}X|}
+\hline
+\textbf{Metric} & \textbf{Weight} & \textbf{Rationale} \\ \hline
+balance & 0.35 & Highest priority for size equity and noise control \\ \hline
+silhouette & 0.25 & Core measure of cohesion/separation \\ \hline
+calinski\_\hspace{0pt}harabasz & 0.20 & Strong variance-based separation indicator \\ \hline
+dunn & 0.10 & Distance-based compactness/separation \\ \hline
+davies\_\hspace{0pt}bouldin & 0.05 & Cluster similarity (inverted) \\ \hline
+xie\_\hspace{0pt}beni & 0.05 & Compactness relative to separation (inverted) \\ \hline
+\end{tabularx}
+\end{table}
+
+Because all 32 cases are ranked, the highest achievable composite score is 32 and the lowest is 1; cases closer to 32 perform better.
+
+\subsection{Group-Level Comparisons}
+
+To compare across imputation strategies, predefined groups were formed: \texttt{no\_context\_dfs} (all no-context imputed), \texttt{context\_dfs} (all context-aware imputed), \texttt{no\_imputed\_dfs} (baseline encoded), \texttt{mice\_dfs}, \texttt{rf\_dfs}, \texttt{knn\_dfs}, and algorithm-specific groups (\texttt{agg\_dfs}, \texttt{dbscan\_dfs}, \texttt{kmeans\_dfs}, \texttt{spc\_dfs}). Group averages were computed per metric, with NaNs skipped, for visualisation and cross-analysis. Metrics were normalised via min--max scaling (per metric across all cases) for comparative graphing.
+
+\subsection{Additional Analysis for Best Cases}
+
+After ranking, top cases were selected for decoding and profiling. Label-encoded features were decoded using the saved JSON files from preprocessing, mapping integers back to original categories for cluster interpretation, visualisation, and exploratory subgroup characterisation.
+
+\section{Summary of the Complete Pipeline}
+
+The methodology described in this chapter assembles raw newspaper records into a clean, encoded analytical dataset; produces six imputed variants from three methods under two predictor regimes; runs four clustering algorithms across the resulting eight inputs; and ranks the 32 end-to-end pipelines under a balance-aware composite score. Figure~\ref{fig:complete_pipeline_integration} consolidates the six phases into a single integrated view.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{overall.png}
+  \caption[Integrated view of the complete pipeline]{Integrated view of the complete pipeline, showing how all six phases combine to produce the 32 end-to-end clustering combinations evaluated in Chapter~4.}
+  \label{fig:complete_pipeline_integration}
+\end{figure}

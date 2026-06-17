@@ -1,0 +1,25 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Related work on missing data imputation in public health}}{9}{table.caption.10}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Related work on clustering in suicide and mental health}}{10}{table.caption.11}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Comparison of present study with key prior suicide studies}}{12}{table.caption.12}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Feature groupings by missing-value rate}}{15}{table.caption.14}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Weather-related missingness before and after API filling}}{16}{table.caption.15}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Summary of the six imputation variants}}{22}{table.caption.17}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Summary of all 32 clustering combinations}}{27}{table.caption.19}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Weights for composite score}}{31}{table.caption.20}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Optimal parameters and performance for 32 cases}}{38}{table.caption.26}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Best pipeline per comparison group}}{44}{table.caption.36}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Summary statistics for numerical features by cluster}}{45}{table.caption.37}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Categorical mode and frequency by cluster}}{47}{table.caption.40}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Potential applications by stakeholder group}}{52}{table.caption.45}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Key challenges and solutions}}{54}{table.caption.46}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Structural constraints affecting scope and generalisability}}{55}{table.caption.47}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Research objectives and their achievement status}}{59}{table.caption.49}%
+\contentsline {table}{\numberline {A1}{\ignorespaces Full per-case results across all 32 pipelines\relax }}{66}{table.caption.55}%
+\contentsfinish 
+\contentsfinish 

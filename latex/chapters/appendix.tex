@@ -1,0 +1,134 @@
+% Annex — unnumbered chapter, matching the frontmatter style.
+% Use A-prefixed table and figure numbering so the annex items are
+% clearly distinct from the numbered chapters in the main body.
+\chapter*{Annex}
+\addcontentsline{toc}{chapter}{Annex}
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
+\noindent Table~\ref{tbl:full_per_case_results_across_a} reports the full raw values (case abbreviation, balance, silhouette, Calinski--Harabasz, Dunn, Davies--Bouldin (inv.), Xie--Beni (inv.), and composite score) for all 32 clustering pipelines summarised throughout Chapter~4.
+
+\begin{table}[H]
+\centering
+\caption{Full per-case results across all 32 pipelines}
+\label{tbl:full_per_case_results_across_a}
+\renewcommand{\arraystretch}{1.0}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Case Abbreviation} & \textbf{balance} & \textbf{silhouette} & \textbf{calinski\_harabasz} & \textbf{dunn} & \textbf{davies\_bouldin} & \textbf{xie\_beni} & \textbf{composite\_score} \\ \hline
+agg\_rf\_no\_context & 0.685461 & 0.756380 & 9792.497921 & 0.980954 & 0.730318 & 0.960545 & 27.30 \\ \hline
+kmeans\_mice\_no\_context & 0.674009 & 0.792085 & 13154.910479 & 0.030805 & 0.791936 & 0.970546 & 26.60 \\ \hline
+agg\_rf\_context & 0.685461 & 0.754761 & 9686.611574 & 0.982102 & 0.729068 & 0.960131 & 26.35 \\ \hline
+spc\_rf\_no\_context & 0.685461 & 0.756380 & 9792.497921 & 0.980954 & 0.730318 & 0.960545 & 25.60 \\ \hline
+spc\_mice\_no\_context & 0.673571 & 0.787801 & 12376.439745 & 0.021246 & 0.789193 & 0.968759 & 25.20 \\ \hline
+dbscan\_rf\_context & 0.685461 & 0.754761 & 9686.611574 & 0.982102 & 0.729068 & 0.960131 & 25.15 \\ \hline
+spc\_rf\_context & 0.685461 & 0.754761 & 9686.611574 & 0.982102 & 0.729068 & 0.960131 & 24.45 \\ \hline
+spc\_knn\_no\_context & 0.538092 & 0.795369 & 9875.866564 & 0.025660 & 0.800913 & 0.969425 & 24.10 \\ \hline
+spc\_knn\_context & 0.538092 & 0.794904 & 9833.815232 & 0.025660 & 0.800527 & 0.969298 & 24.00 \\ \hline
+kmeans\_rf\_no\_context & 0.685023 & 0.755367 & 9654.365485 & 0.055459 & 0.729813 & 0.960009 & 23.30 \\ \hline
+spc\_encoded\_40 & 0.569370 & 0.903649 & 7801.572284 & 0.005334 & 0.895641 & 0.989218 & 22.80 \\ \hline
+kmeans\_rf\_context & 0.685023 & 0.753743 & 9549.182978 & 0.054177 & 0.728559 & 0.959586 & 22.10 \\ \hline
+kmeans\_knn\_no\_context & 0.542465 & 0.785370 & 8744.775850 & 0.032461 & 0.786055 & 0.965104 & 22.05 \\ \hline
+kmeans\_knn\_context & 0.542465 & 0.784890 & 8708.895980 & 0.032461 & 0.785642 & 0.964965 & 21.75 \\ \hline
+spc\_mice\_context & 0.702065 & 0.670781 & 5302.263750 & 0.001820 & 0.701281 & 0.929418 & 20.30 \\ \hline
+dbscan\_mice\_context & 0.306703 & 0.874364 & 96.547161 & 2.327724 & 0.883905 & 0.989749 & 18.45 \\ \hline
+kmeans\_mice\_context & 0.668310 & 0.708758 & 7649.178141 & 0.011035 & 0.718630 & 0.950553 & 18.25 \\ \hline
+dbscan\_rf\_no\_context & 0.307709 & 0.351424 & 4.619301 & 0.256321 & 0.481121 & 0.697853 & 11.90 \\ \hline
+spc\_encoded\_20 & 0.438937 & 0.012104 & 1.372098 & 0.025583 & 0.061092 & 0.014959 & 11.00 \\ \hline
+dbscan\_encoded\_20 & 0.356040 & 0.121859 & 1.690365 & 0.071764 & 0.284405 & 0.361745 & 10.85 \\ \hline
+agg\_encoded\_40 & 0.355308 & 0.157153 & 2.160973 & 0.020834 & 0.613707 & 0.685253 & 10.35 \\ \hline
+dbscan\_encoded\_40 & 0.409134 & -0.339146 & 8.739920 & 0.008877 & 0.418675 & 0.381333 & 10.20 \\ \hline
+agg\_mice\_no\_context & 0.356184 & -0.077905 & 2.344871 & 0.009983 & 0.281811 & 0.282000 & 9.65 \\ \hline
+agg\_knn\_context & 0.358801 & -0.285265 & 2.609730 & 0.013441 & 0.272135 & 0.179908 & 9.45 \\ \hline
+agg\_knn\_no\_context & 0.360987 & -0.019878 & 0.278632 & 0.016553 & 0.068518 & 0.016314 & 9.35 \\ \hline
+kmeans\_encoded\_40 & 0.315207 & -0.071859 & 1281.887066 & 0.008478 & 0.168569 & 0.032546 & 9.15 \\ \hline
+dbscan\_mice\_no\_context & 0.356184 & -0.077905 & 2.344871 & 0.009983 & 0.281811 & 0.282000 & 8.65 \\ \hline
+agg\_mice\_context & 0.356184 & -0.094494 & 1.874077 & 0.004522 & 0.259546 & 0.238908 & 8.15 \\ \hline
+kmeans\_encoded\_20 & 0.289369 & -0.212661 & 28.041057 & 0.020631 & 0.190869 & 0.079326 & 7.20 \\ \hline
+agg\_encoded\_20 & 0.258243 & -0.316824 & 1.109202 & 0.043354 & 0.303899 & 0.182562 & 5.65 \\ \hline
+dbscan\_knn\_no\_context & 0.143811 & -0.436810 & 239.623244 & 0.003395 & 0.178531 & 0.012615 & 4.50 \\ \hline
+dbscan\_knn\_context & 0.139237 & -0.405025 & 220.061266 & 0.003395 & 0.174882 & 0.007614 & 4.20 \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{image8.png}
+  \caption[PCA scatter grid for all 32 pipelines]{PCA-reduced scatter grid covering all 32 clustering pipelines (4 rows $\times$ 8 columns), sorted by descending composite rank. Points are coloured by their assigned cluster labels.}
+  \label{fig:supplementary_figure_s2_full_p}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{image14.png}
+  \caption[Cluster count across all 32 pipelines]{Full bar graph of the number of unique clusters (excluding noise labels of $-1$ in DBSCAN) across all 32 pipelines.}
+  \label{fig:supplementary_figure_s3_full_b}
+\end{figure}
+
+% Numerical comparison — the source PNG is too tall to fit one page at
+% readable width, so it was pre-split into 4 vertical quarters
+% (all_numerical_comparison_p1.png ... _p4.png). \ContinuedFloat keeps all
+% four sub-figures under the same logical number (S3); the empty short-caption
+% [] on parts 2–4 suppresses extra List-of-Figures entries.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_numerical_comparison_p1.png}
+  \caption[Numerical feature distributions, best pipeline, part 1]{Cluster~0 (blue) versus Cluster~1 (red) density distributions for every numerical feature in the best-performing pipeline (\texttt{agg\_rf\_no\_context}). Part 1 of 4.}
+  \label{fig:appendix_numerical_all}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_numerical_comparison_p2.png}
+  \caption[]{Numerical feature comparison, part 2 of 4 (continued from Figure~\ref{fig:appendix_numerical_all}).}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_numerical_comparison_p3.png}
+  \caption[]{Numerical feature comparison, part 3 of 4 (continued from Figure~\ref{fig:appendix_numerical_all}).}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_numerical_comparison_p4.png}
+  \caption[]{Numerical feature comparison, part 4 of 4 (continued from Figure~\ref{fig:appendix_numerical_all}).}
+\end{figure}
+
+% Categorical comparison — same 4-part split approach.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_categoricaL_comparsion_p1.png}
+  \caption[Categorical feature distributions, best pipeline, part 1]{Cluster~0 (blue) versus Cluster~1 (red) category-frequency bar charts for every categorical feature in the best-performing pipeline (\texttt{agg\_rf\_no\_context}). Part 1 of 4.}
+  \label{fig:appendix_categorical_all}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_categoricaL_comparsion_p2.png}
+  \caption[]{Categorical feature comparison, part 2 of 4 (continued from Figure~\ref{fig:appendix_categorical_all}).}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_categoricaL_comparsion_p3.png}
+  \caption[]{Categorical feature comparison, part 3 of 4 (continued from Figure~\ref{fig:appendix_categorical_all}).}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \includegraphics[width=\textwidth,height=0.9\textheight,keepaspectratio]{all_categoricaL_comparsion_p4.png}
+  \caption[]{Categorical feature comparison, part 4 of 4 (continued from Figure~\ref{fig:appendix_categorical_all}).}
+\end{figure}
+
