@@ -15,11 +15,14 @@ The absence of an official, structured suicide surveillance system in Bangladesh
 
 The study is motivated by three connected observations. First, Bangladesh lacks algorithmic, data-driven subgroup analysis of its suicide landscape at the case level; existing work has relied on manual grouping or simple statistical summaries of newspaper-derived case records, leaving a methodological void \cite{ref51,ref50}. Second, the international literature on missing-data imputation and unsupervised clustering --- extensive though it is --- has rarely been applied systematically to South Asian social and public-health datasets with this level of missingness and mixed data types \cite{ref8,ref55}; existing benchmarks focus predominantly on clinical or genomic data, and to the best of our knowledge no published work has applied a multi-method imputation--clustering pipeline to a large newspaper-derived Bangladeshi social dataset. Third, standard clustering validation metrics are misleading when clusters are severely imbalanced or when algorithms such as DBSCAN assign the majority of points as noise, so a more interpretability-oriented evaluation framework is needed for this application domain. The central question of the study can be stated directly:
 
-``Which combination of missing-data handling and unsupervised learning techniques produces the most stable and interpretable cluster structure --- and therefore the strongest basis for further targeted investigation --- from newspaper-based suicide records in Bangladesh?''
+\begin{quote}
+\itshape
+Which combination of missing-data handling and unsupervised learning techniques produces the most stable and interpretable cluster structure --- and therefore the strongest basis for further targeted investigation --- from newspaper-based suicide records in Bangladesh?
+\end{quote}
 
 \section{Research Objectives}
 
-The specific objectives of this research are:
+Three connected objectives drive the study: assemble the largest curated Bangladeshi newspaper-derived suicide dataset to date; benchmark every combination of imputation method, predictor strategy, and clustering algorithm against no-imputation baselines; and interpret the winning pipeline with explicit, cohort-aware caveats. These translate into the following six concrete objectives.
 
 To expand and enrich an existing publicly available dataset of 760 newspaper-reported suicide cases in Bangladesh (covering the year 2020) by manually collecting 857 additional cases spanning 2017--2025, and by introducing 9 new socioeconomic and clinical attributes, yielding a final dataset of 1,617 records and 34 analytical columns.
 
@@ -95,13 +98,13 @@ The project applies advanced data-engineering and machine-learning methods to a 
 
 The remainder of the report is organised as follows.
 
-Chapter~2 reviews related literature across four areas: suicide epidemiology in Bangladesh, the documented limitations of newspaper-derived datasets, prior work on missing-data imputation in public health, and earlier applications of clustering to suicide and mental-health research. It closes by consolidating the five research gaps that motivate the rest of the thesis.
-
-Chapter~3 sets out the methodology in six phases: dataset construction (the 760-to-1{,}617-record expansion), preprocessing and four-strategy encoding, the three imputation methods under two predictor-selection regimes (yielding six imputed datasets), the four clustering algorithms applied to the eight resulting inputs, the composite scoring framework with its study-specific balance penalty, and the computational complexity of the combined grid.
-
-Chapter~4 reports the experimental results. After the implementation overview and reproducibility settings, it presents the composite ranking across the 32 pipelines, metric-by-metric analysis of all six components, group-level comparisons by imputation strategy / context / algorithm, and detailed profiling of the best-performing pipeline (Agglomerative Clustering with MissForest no-context imputation, composite score 27.30) including the source-cohort confound finding that frames the substantive interpretation of every downstream feature.
-
-Chapter~5 places the work in its broader context --- sustainability standards aligned with three SDGs, positive and negative societal impacts, six ethical principles for sensitive-topic research, the practical challenges encountered, the structural constraints bounding generalisation, the 25-week project timeline, and the open-source data-and-code release. Chapter~6 closes with the five key findings, the achievement of each research objective, the three sets of limitations (data, methodological, and the source-cohort/temperature-unit confounds), and two interconnected lines of future work.
+\begin{description}[leftmargin=2em,labelindent=0pt,itemsep=0.4em]
+  \item[\textbf{Chapter~2 --- Background and Literature Review.}] Reviews related work across four areas (suicide epidemiology in Bangladesh, the documented limitations of newspaper-derived datasets, prior work on missing-data imputation in public health, and earlier applications of clustering to suicide and mental-health research) and consolidates the five research gaps that motivate the rest of the thesis.
+  \item[\textbf{Chapter~3 --- Research Methodology.}] Sets out the framework in six phases: dataset construction (the 760-to-1{,}617-record expansion), preprocessing and four-strategy encoding, the three imputation methods under two predictor-selection regimes (yielding six imputed datasets), the four clustering algorithms applied to the eight resulting inputs, the composite scoring framework with its study-specific balance penalty, and the computational complexity of the combined grid.
+  \item[\textbf{Chapter~4 --- Implementation and Result Analysis.}] Reports the experimental results. After the implementation overview and reproducibility settings, it establishes the imputed-versus-baseline headline up front, presents the composite ranking across the 32 pipelines, performs metric-by-metric analysis of all six components, runs group-level comparisons by imputation strategy / context / algorithm, and profiles the best-performing pipeline (Agglomerative Clustering with MissForest no-context imputation, composite score 27.30) --- including the source-cohort confound finding that frames the substantive interpretation of every downstream feature.
+  \item[\textbf{Chapter~5 --- Standards, Constraints, and Milestones.}] Places the work in its broader context: sustainability alignment with three SDGs, positive and negative societal impacts, six ethical principles for sensitive-topic research, the practical challenges encountered, the structural constraints bounding generalisation, the 25-week project timeline, and the open-source data-and-code release.
+  \item[\textbf{Chapter~6 --- Conclusion.}] Closes with the five key findings, the achievement of each research objective, the three sets of limitations (data, methodological, and the source-cohort/temperature-unit confounds), and two interconnected lines of future work.
+\end{description}
 
 \section{Summary}
 

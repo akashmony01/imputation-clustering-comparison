@@ -8,12 +8,16 @@
 \setlength{\parskip}{0pt}
 \setstretch{1.2}
 
-\noindent Clustering on social datasets assembled from heterogeneous sources is
-prone to recovering data-collection-source structure before phenomenon-level
-structure, while standard internal validity indices can reward such degenerate
-partitions as ``tight'' clusterings. Reliable analysis on this kind of input
-therefore depends on the joint choice of imputation method, clustering
-algorithm, and evaluation metric. This study constructs and systematically
+\noindent In countries without a centralised national suicide-surveillance
+registry, newspaper reports are the only public source of case-level suicide
+data --- but they are 50--90\% missing on many key features, which makes
+standard machine-learning workflows either fail outright under row-dropping or
+return biased results under naive single-method imputation. Reliable analysis
+on this kind of input therefore depends on the joint choice of imputation
+method, clustering algorithm, and evaluation metric, and on the further
+safeguard that the framework can detect a known failure mode --- clustering
+recovering data-collection-source structure before phenomenon-level structure,
+which standard internal validity indices reward as ``tight'' clusterings. This study constructs and systematically
 evaluates a factorial benchmark of these three choices on 1,617 incomplete,
 newspaper-derived Bangladeshi suicide cases (KNN and MissForest variants impute
 all 1,617 rows; the MICE variants retain 1,613 after dropping four rows whose
